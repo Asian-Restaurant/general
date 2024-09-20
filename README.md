@@ -23,10 +23,10 @@ To install AsianRestaurant locally, follow these steps:
    ```
 
 ## Sub Modules
-- **Web Application**: [WebApp Repository](https://github.com/tanyashybko/AsianRestaurantweb)  
+- **Web Application**: [WebApp Repository](https://github.com/Asian-Restaurant/web))  
   Description: A responsive web application that allows users to explore restaurant menus and make online orders.
 
-- **Mobile Application**: [MobileApp Repository](https://github.com/tanyashybko/AsianRestaurantmobile)  
+- **Mobile Application**: [MobileApp Repository](https://github.com/Asian-Restaurant/mobile))  
   Description: A cross-platform mobile application built with React Native, providing users with a convenient way to order food and make reservations on the go.
 
 ## Usage
