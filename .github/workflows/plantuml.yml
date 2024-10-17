@@ -24,4 +24,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y plantuml
-          plantuml -o ./output ./diagram.p
+          plantuml -o ./output ./diagrams/*.puml
+
+      - name: Commit and push rendered diagrams
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ./output/*.png
+          git commit -m "Add rendered PlantUML diagrams"
+          git push
