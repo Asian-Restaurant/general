@@ -1,0 +1,43 @@
+@startuml
+!if %variable_exists("RELATIVE_INCLUDE")
+  !include %get_variable_value("RELATIVE_INCLUDE")/C4_Container.puml
+!else
+  !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!endif
+
+SHOW_PERSON_OUTLINE()
+' Define tags
+AddElementTag("backendContainer", $fontColor=$ELEMENT_FONT_COLOR, $bgColor="#335DA5", $shape=EightSidedShape(), $legendText="Backend Container (Eight Sided)")
+AddRelTag("async", $textColor=$ARROW_FONT_COLOR, $lineColor=$ARROW_COLOR, $lineStyle=DashedLine())
+AddRelTag("sync/async", $textColor=$ARROW_FONT_COLOR, $lineColor=$ARROW_COLOR, $lineStyle=DottedLine())
+
+title Container Diagram for Food Delivery System
+
+Person(customer, "Customer", "A customer ordering food")
+Person(employee, "Employee", "An employee managing orders")
+
+System_Boundary(c1, "Food Delivery System") {
+    Container(web_app, "Web Application", "", "Allows customers to browse menus and place orders")
+    Container(mobile_app, "Mobile App", "", "Enables customers to order food on the go")
+    Container(employee_portal, "Employee Portal", "", "Used by employees to manage orders")
+    ContainerDb(database, "Database", "SQL Database", "Stores customer orders, menus, and reviews")
+    Container(backend_api, "API Application", "Java, Docker Container", "Handles all requests and interactions for the food delivery system", $tags="backendContainer")
+}
+
+
+System_Ext(payment_system, "Payment Gateway", "Handles payment processing")
+
+' Relationships
+Rel(customer, web_app, "Uses", "HTTPS")
+Rel(customer, mobile_app, "Uses", "HTTPS")
+Rel(employee, employee_portal, "Uses", "HTTPS")
+
+Rel(web_app, backend_api, "Uses", "async, JSON/HTTPS", $tags="async")
+Rel(mobile_app, backend_api, "Uses", "async, JSON/HTTPS", $tags="async")
+Rel(employee_portal, backend_api, "Uses", "sync, JSON/HTTPS")
+
+Rel_Back(backend_api, payment_system, "Processes payments using", "sync/async, HTTPS", $tags="sync/async")
+
+SHOW_LEGEND()
+footer drawn with PlantUML v. %version() and C4-PlantUML v. C4Version()
+@enduml
