@@ -7,9 +7,19 @@ $enableAutoSpacing()
 ' Configure the names of the lanes
 $configureWireframeLane(Customer)
 $configureWireframeLane(Employee)
+$configureWireframeLane(Driver)
 $configureEventLane(Order, $context = Order)
+$configureEventLane(Feedback, $context = Feedback)
 
 ' Provide all elements in order
+$wireframe(MenuScreen, Customer)
+$view(MenuCategories)
+$view(DishDetails)
+$command(SelectDish)
+$event(DishSelected, Order)
+$arrow(MenuCategories, MenuScreen)
+$arrow(DishDetails, MenuScreen)
+
 $wireframe(OrderScreen, Customer)
 $command(SubmitOrder)
 $event(OrderSubmitted, Order)
@@ -20,7 +30,24 @@ $wireframe(EmployeeScreen, Employee)
 $command(DispatchOrder)
 $event(OrderDispatched, Order)
 $view(Orders)
-$wireframe(OrderScreen, Customer)
+$arrow(Orders, EmployeeScreen)
+
+$wireframe(DriverApp, Driver)
+$command(PickUpOrder)
+$event(OrderPickedUp, Order)
+$view(DeliveryStatus)
+$arrow(DeliveryStatus, DriverApp)
+
+$command(CompleteDelivery)
+$event(OrderDelivered, Order)
+$view(DeliveryStatus)
+$arrow(DeliveryStatus, OrderScreen)
+
+$wireframe(FeedbackScreen, Customer)
+$command(WriteReview)
+$event(ReviewSubmitted, Feedback)
+$view(Reviews)
+$arrow(Reviews, FeedbackScreen)
 
 ' Render the diagram
 $renderEventModelingDiagram()
