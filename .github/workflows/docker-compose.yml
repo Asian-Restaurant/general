@@ -24,4 +24,4 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build and push
-      run: docker-compose up --build
+      run: docker compose up --build
