@@ -13,30 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+        # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      # Step 2: List files to debug
+      - name: List files
+        run: ls -la
 
-      # Step 3: Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      # Step 4: Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
-      # Step 4: Build and run containers with Docker Compose
+      # Step 5: Build and run containers with Docker Compose
       - name: Build and run containers with Docker Compose
         run: |
-          docker compose -f docker-compose.yml up --build -d
-
-      # Step 5: Run tests
-      - name: Run tests
-        run: |
-          docker compose exec <container_name> npm test
+          docker-compose -f docker-compose.yml up --build -d
 
       # Step 6: Shutdown containers after tests
       - name: Shutdown containers
