@@ -1,44 +1,28 @@
-name: CI/CD Pipeline
+name: Docker Compose CI
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-        # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Check out the repository
+      uses: actions/checkout@v2
 
-      # Step 2: List files to debug
-      - name: List files
-        run: ls -la
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      # Step 4: Install Docker Compose
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build and run containers with Docker Compose
-      - name: Build and run containers with Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml up --build -d
-
-      # Step 6: Shutdown containers after tests
-      - name: Shutdown containers
-        run: |
-          docker compose down
-
-      # Step 7: Publish Docker image to Docker Hub
-      - name: Push Docker image to Docker Hub
-        run: |
-          docker tag my-app:latest my-dockerhub-username/my-app:latest
-          docker push my-dockerhub-username/my-app:latest
+    - name: Build and push
+      run: |
+        docker compose -f docker-compose.yml up --build
