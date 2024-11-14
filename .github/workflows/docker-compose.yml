@@ -1,30 +1,27 @@
-version: '3.8'
+name: Docker Compose CI
 
-services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: backend_service
-    ports:
-      - "5000:5000"
-    networks:
-      - app_network
-    environment:
-      - NODE_ENV=production
-      - DB_HOST=db_host
-      - DB_PORT=5432
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
-  web:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    container_name: web_service
-    ports:
-      - "3000:3000"
-    networks:
-      - app_network
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-networks:
-  app_network:
-    driver: bridge
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push
+      run: docker-compose up --build
