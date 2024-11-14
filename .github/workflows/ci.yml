@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Шаг 1: Клонирование репозитория
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Шаг 2: Установка Docker
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    # Шаг 3: Логин в Docker Hub (или другой контейнерный реестр)
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # Шаг 4: Сборка и запуск контейнера
+    - name: Build and run containers with Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml up -d
+
+    # Шаг 5: Выполнение тестов (если они есть)
+    - name: Run tests
+      run: |
+        docker exec <container_name> npm test
+
+    # Шаг 6: Остановка контейнеров после выполнения тестов
+    - name: Shutdown containers
+      run: |
+        docker-compose down
+
+    # Шаг 7: Публикация Docker образа (если нужно)
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker tag my-app:latest my-dockerhub-username/my-app:latest
+        docker push my-dockerhub-username/my-app:latest
