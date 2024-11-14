@@ -28,28 +28,22 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Step 4: Install Docker Compose
-    - name: Install Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y docker-compose
-
-    # Step 5: Build and run containers with Docker Compose
+    # Step 4: Build and run containers with Docker Compose
     - name: Build and run containers with Docker Compose
       run: |
-        docker-compose -f docker-compose.yml up --build -d
+        docker compose -f docker-compose.yml up --build -d
 
-    # Step 6: Run tests (if any)
+    # Step 5: Run tests (if any)
     - name: Run tests
       run: |
         docker exec <container_name> npm test
 
-    # Step 7: Shutdown containers after tests
+    # Step 6: Shutdown containers after tests
     - name: Shutdown containers
       run: |
-        docker-compose down
+        docker compose down
 
-    # Step 8: Publish Docker image (if needed)
+    # Step 7: Publish Docker image (if needed)
     - name: Push Docker image to Docker Hub
       run: |
         docker tag my-app:latest my-dockerhub-username/my-app:latest
