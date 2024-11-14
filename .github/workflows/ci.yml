@@ -25,4 +25,4 @@ jobs:
 
     - name: Build and push
       run: |
-        docker compose -f docker-compose.yml up --build
+        docker-compose -f docker-compose.yml up --build
