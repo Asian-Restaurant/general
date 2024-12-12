@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'menu_page.dart'; // Импортируем MenuPage
-import 'reviews_page.dart'; // Импортируем ReviewsPage
+import 'menu_page.dart' as menu; // Импортируем MenuPage с алиасом
+import 'reviews_page.dart' as reviews; // Импортируем ReviewsPage с алиасом
 
 class MainPage extends StatelessWidget {
   @override
@@ -45,14 +45,17 @@ class MainPage extends StatelessWidget {
                   _buildNavButton(context, "Menu", () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MenuPage()),
+                      MaterialPageRoute(builder: (context) => const menu.MenuPage()),
                     );
                   }),
                   _buildNavButton(context, "Basket", () {
                     // Действие для Basket
                   }),
                   _buildNavButton(context, "Reviews", () {
-
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()),
+                    );
                   }),
                   _buildNavButton(context, "Contacts", () {
                     // Действие для Contacts
