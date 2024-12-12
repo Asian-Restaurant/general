@@ -1,3 +1,6 @@
+
+
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -14,7 +17,7 @@ class AsianParadiseApp extends StatelessWidget {
       home: Scaffold(
         backgroundColor: Colors.pink[50],
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.pink[50],
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -22,63 +25,81 @@ class AsianParadiseApp extends StatelessWidget {
           ),
           centerTitle: true,
         ),
-        body: Column(
-          children: [
-            // Header with logo and navigation buttons
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "WELCOME TO YOUR LITTLE DREAMWORLD",
-                        style: GoogleFonts.pacifico(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Заголовок
+                Text(
+                  "WELCOME TO YOUR LITTLE DREAMWORLD",
+                  style: GoogleFonts.pacifico(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                // Кнопки навигации
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavButton("Menu"),
+                    _buildNavButton("Basket"),
+                    _buildNavButton("Reviews"),
+                    _buildNavButton("Contacts"),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Категории еды
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 600) {
+                      // Мобильная версия: карточки друг под другом
+                      return Column(
+                        children: [
+                          _buildFoodCard("assets/sushi.jpg", "Try classic of Japan"),
+                          const SizedBox(height: 16), // Отступ между карточками
+                          _buildFoodCard("assets/indian.jpg", "Would you like to fall in love with India?"),
+                          const SizedBox(height: 16),
+                          _buildFoodCard("assets/thai.jpg", "Say Hello to Thailand!"),
+                          const SizedBox(height: 16),
+                          _buildFoodCard("assets/korean.jpg", "Must have Korean set"),
+                        ],
+                      );
+                    } else {
+                      // Веб-версия: карточки в сетке
+                      return GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildNavButton("Menu"),
-                      _buildNavButton("Basket"),
-                      _buildNavButton("Reviews"),
-                      _buildNavButton("Contacts"),
-                    ],
-                  ),
-                ],
-              ),
+                        itemBuilder: (context, index) {
+                          return _buildFoodCard(
+                            ["assets/sushi.jpg", "assets/indian.jpg", "assets/thai.jpg", "assets/korean.jpg"][index],
+                            ["Try classic of Japan", "Would you like to fall in love with India?", "Say Hello to Thailand!", "Must have Korean set"][index],
+                          );
+                        },
+                        itemCount: 4,
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
-
-            // Food categories
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                padding: const EdgeInsets.all(16.0),
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-                children: [
-                  _buildFoodCard("assets/sushi.jpg", "Try classic of Japan"),
-                  _buildFoodCard("assets/indian.jpg", "Would you like to fall in love with India?"),
-                  _buildFoodCard("assets/thai.jpg", "Say Hello to Thailand!"),
-                  _buildFoodCard("assets/korean.jpg", "Must have Korean set"),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  // Widget for navigation buttons
+  // Виджет для кнопок навигации
   static Widget _buildNavButton(String title) {
     return TextButton(
       onPressed: () {},
@@ -103,23 +124,23 @@ class AsianParadiseApp extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 473, // Фиксированная ширина
-          height: 292, // Фиксированная высота
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.0),
-            border: Border.all(color: Colors.pink[300]!, width: 5), // Толще рамка
+            border: Border.all(color: Colors.pink[300]!, width: 5),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(11.0),
             child: Image.asset(
               imagePath,
               fit: BoxFit.cover,
+              width: double.infinity,
+              height: 200, // Фиксированная высота для изображений
             ),
           ),
         ),
-        const SizedBox(height: 4), // Уменьшенный отступ между изображением и текстом
+        const SizedBox(height: 8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0), // Уменьшенные отступы
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: Text(
             description,
             textAlign: TextAlign.center,
