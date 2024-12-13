@@ -1,3 +1,4 @@
+import 'package:asian_paradise/%D1%81art.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'basket_page.dart';
@@ -5,6 +6,8 @@ import 'menu_page.dart' as menu;
 import 'reviews_page.dart' as reviews;
 
 class MainPage extends StatelessWidget {
+  final Cart cart = Cart(); // Создайте экземпляр корзины
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,14 +47,13 @@ class MainPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton(context, "Menu", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const menu.MenuPage()),);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const menu.MenuPage()));
                   }),
                   _buildNavButton(context, "Basket", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPage(cartData: cart)));
                   }),
                   _buildNavButton(context, "Reviews", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
                   }),
                   _buildNavButton(context, "Contacts", () {
                     // Действие для Contacts

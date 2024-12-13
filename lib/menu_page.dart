@@ -3,12 +3,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'reviews_page.dart' as reviews;
 import 'main_page.dart';
 import 'basket_page.dart' as basket;
+import 'dish_page.dart';
+import 'сart.dart';
 
 class MenuPage extends StatelessWidget {
   const MenuPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final cart = Cart(); // Создайте экземпляр Cart здесь
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -40,23 +44,22 @@ class MenuPage extends StatelessWidget {
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Basket", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => basket.BasketPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => basket.BasketPage(cartData: cart)));
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Reviews", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Contacts", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ContactsPage()));
+                  // Действие для Contacts
                 }),
               ],
             ),
             const SizedBox(width: 16),
             // Изображения
             Expanded(
-              child: _buildFoodGrid(context),
+              child: _buildFoodGrid(context, cart), // Передайте cart сюда
             ),
           ],
         ),
@@ -65,49 +68,137 @@ class MenuPage extends StatelessWidget {
   }
 
   // Метод для создания сетки с изображениями
-  Widget _buildFoodGrid(BuildContext context) {
-    final foodItems = [
-      {"image": "assets/jiaozi.jpg", "title": "Jiaozi"},
-      {"image": "assets/onigiri.jpg", "title": "Onigiri"},
-      {"image": "assets/bibimbap.jpg", "title": "Bibimbap"},
-      {"image": "assets/satay.jpg", "title": "Satay"},
-      {"image": "assets/biryani.jpg", "title": "Biryani"},
-      {"image": "assets/bun bo hue.jpg", "title": "Bun Bo Hue"},
-      {"image": "assets/char siu.jpg", "title": "Char Siu"},
-      {"image": "assets/kimchi.jpg", "title": "Kimchi"},
-    ];
+  Widget _buildFoodGrid(BuildContext context, Cart cart) {
+    final foodCategories = {
+      "Korean": [
+        {
+          "image": "assets/bibimbap.jpg",
+          "title": "Bibimbap",
+          "description": "A delicious Korean dish made with rice and vegetables.",
+          "weight": 250.0,
+          "price": 15.99,
+        },
+        {
+          "image": "assets/kimbap.jpg",
+          "title": "Kimbap",
+          "description": "Korean sushi rolls filled with vegetables and meat.",
+          "weight": 300.0,
+          "price": 12.50,
+        },
+        {
+          "image": "assets/tteokbokki.jpg",
+          "title": "Tteokbokki",
+          "description": "Spicy rice cakes, a popular Korean street food.",
+          "weight": 200.0,
+          "price": 10.00,
+        },
+      ],
+      "Japanese": [
+        {
+          "image": "assets/onigiri.jpg",
+          "title": "Onigiri",
+          "description": "Japanese rice ball with various fillings.",
+          "weight": 200.0,
+          "price": 10.00,
+        },
+        {
+          "image": "assets/ramen.jpg",
+          "title": "Ramen",
+          "description": "Noodle soup with meat and vegetables.",
+          "weight": 400.0,
+          "price": 18.00,
+        },
+        {
+          "image": "assets/sushi.jpg",
+          "title": "Sushi",
+          "description": "Traditional Japanese dish with vinegared rice and seafood.",
+          "weight": 250.0,
+          "price": 14.00,
+        },
+      ],
+      "Chinese": [
+        {
+          "image": "assets/jiaozi.jpg",
+          "title": "Jiaozi",
+          "description": "Chinese dumplings filled with meat and vegetables.",
+          "weight": 300.0,
+          "price": 14.50,
+        },
+        {
+          "image": "assets/dim sum.jpg",
+          "title": "Dim Sum",
+          "description": "Steamed buns with various fillings.",
+          "weight": 250.0,
+          "price": 16.00,
+        },
+        {
+          "image": "assets/char siu.jpg",
+          "title": "Char Siu",
+          "description": "Chinese BBQ pork with a sweet glaze.",
+          "weight": 300.0,
+          "price": 17.00,
+        },
+      ],
+    };
 
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: MediaQuery.of(context).size.width < 600 ? 1 : 3,
-        childAspectRatio: 1,
-      ),
-      itemCount: foodItems.length,
-      itemBuilder: (context, index) {
-        return _buildFoodCard(foodItems[index]["image"] as String, foodItems[index]["title"] as String, context);
+    return ListView.builder(
+      itemCount: foodCategories.keys.length,
+      itemBuilder: (context, categoryIndex) {
+        String category = foodCategories.keys.elementAt(categoryIndex);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                category,
+                style: GoogleFonts.mali(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _getCrossAxisCount(context), // Используем метод для определения количества колонок
+                childAspectRatio: 1,
+              ),
+              itemCount: foodCategories[category]!.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, itemIndex) {
+                final foodItem = foodCategories[category]![itemIndex];
+                return _buildFoodCard(
+                  foodItem["image"] as String,
+                  foodItem["title"] as String,
+                  foodItem["description"] as String,
+                  foodItem["weight"] as double,
+                  foodItem["price"] as double,
+                  context,
+                  cart, // Передайте cart в карточку
+                );
+              },
+            ),
+          ],
+        );
       },
     );
   }
 
   // Метод для создания карточки с едой
-  Widget _buildFoodCard(String imagePath, String title, BuildContext context) {
+  Widget _buildFoodCard(String imagePath, String title, String description, double weight, double price, BuildContext context, Cart cart) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Stack(
           alignment: Alignment.center,
           children: [
-            // Изображение
             ClipRRect(
               borderRadius: BorderRadius.circular(16.0),
               child: Image.asset(
                 imagePath,
                 fit: BoxFit.cover,
-                width: MediaQuery.of(context).size.width < 600 ? 140 : 220, // Увеличиваем ширину
-                height: MediaQuery.of(context).size.width < 600 ? 100 : 180, // Увеличиваем высоту
+                width: MediaQuery.of(context).size.width < 600 ? 140 : 220,
+                height: MediaQuery.of(context).size.width < 600 ? 100 : 180,
               ),
             ),
-            // Рамка
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -121,7 +212,20 @@ class MenuPage extends StatelessWidget {
         const SizedBox(height: 4),
         TextButton(
           onPressed: () {
-            print('$title selected');
+            // Переход на страницу блюда с передачей корзины
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DishPage(
+                  title: title,
+                  imagePath: imagePath,
+                  description: description,
+                  weight: weight,
+                  price: price,
+                  cart: cart, // Передайте корзину
+                ),
+              ),
+            );
           },
           style: TextButton.styleFrom(
             backgroundColor: Colors.pink[200],
@@ -140,6 +244,18 @@ class MenuPage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  // Метод для определения количества колонок в зависимости от ширины экрана
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 900) {
+      return 3; // Большие экраны
+    } else if (width >= 600) {
+      return 2; // Средние экраны
+    } else {
+      return 1; // Маленькие экраны
+    }
   }
 
   // Метод для создания кнопки навигации
@@ -162,37 +278,6 @@ class MenuPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// Заглушки для других страниц
-class BasketPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Basket')),
-      body: Center(child: Text('This is the Basket Page')),
-    );
-  }
-}
-
-class ReviewsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Reviews')),
-      body: Center(child: Text('This is the Reviews Page')),
-    );
-  }
-}
-
-class ContactsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Contacts')),
-      body: Center(child: Text('This is the Contacts Page')),
     );
   }
 }

@@ -1,52 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'database/database_helper.dart' as db; // Alias for database_helper.dart
+import 'сart.dart' as cart; // Alias for сart.dart
 import 'reviews_page.dart' as reviews;
 import 'main_page.dart';
 import 'menu_page.dart';
 
 class BasketPage extends StatefulWidget {
+  final cart.Cart cartData; // Renamed from cart to cartData to avoid shadowing
+
+  const BasketPage({Key? key, required this.cartData}) : super(key: key);
+
   @override
   _BasketPageState createState() => _BasketPageState();
 }
 
 class _BasketPageState extends State<BasketPage> {
   final TextEditingController _commentController = TextEditingController();
-  final Map<String, int> _orderItems = {
-    "Nigiri": 1,
-    "Kimbap": 2,
-    "Dal": 1,
-    "Tteokbokki": 2,
-    "Dim Sum": 1,
-    "Yakitori": 4,
-  };
-
+  final db.DatabaseHelper _dbHelper = db.DatabaseHelper();
   String? _sendMessage;
 
-  void _incrementItem(String item) {
+  @override
+  void initState() {
+    super.initState();
+    _loadCart(); // Load cart on initialization
+  }
+
+  @override
+  void dispose() {
+    _saveCart(); // Save cart on exit
+    super.dispose();
+  }
+
+  void _loadCart() async {
+    final userId = 1; // Replace with the actual user ID
+    final loadedItems = await _dbHelper.loadCart(userId);
     setState(() {
-      _orderItems[item] = (_orderItems[item] ?? 0) + 1;
+      widget.cartData.items.clear(); // Clear current items
+      widget.cartData.items.addAll(loadedItems.map((item) => cart.CartItem(
+        title: item.title,
+        imagePath: item.imagePath,
+        price: item.price,
+        quantity: item.quantity,
+      )));
     });
   }
 
-  void _decrementItem(String item) {
-    setState(() {
-      if (_orderItems[item] != null && _orderItems[item]! > 1) {
-        _orderItems[item] = _orderItems[item]! - 1;
-      } else {
-        _orderItems.remove(item);
-      }
-    });
+  void _saveCart() async {
+    final userId = 1; // Replace with the actual user ID
+    await _dbHelper.saveCart(widget.cartData.items.cast<db.CartItem>(), userId);
   }
 
   void _sendComment() {
     setState(() {
       _sendMessage = "Sent!";
-      _commentController.clear();
+      _commentController.clear(); // Clear input field
+    });
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _sendMessage = null; // Remove message after 2 seconds
+      });
+    });
+  }
+
+  void _showAddMessage(String message) {
+    setState(() {
+      _sendMessage = message;
     });
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _sendMessage = null;
       });
+    });
+  }
+
+  void _addItemToCart(cart.CartItem item) {
+    setState(() {
+      // Check if item already exists in cart
+      final existingItemIndex = widget.cartData.items.indexWhere((cartItem) => cartItem.title == item.title);
+
+      if (existingItemIndex != -1) {
+        // If item already exists, increase quantity
+        widget.cartData.items[existingItemIndex].quantity++;
+      } else {
+        // If item does not exist, add it to cart
+        widget.cartData.addItem(cart.CartItem(
+          title: item.title,
+          imagePath: item.imagePath,
+          price: item.price,
+          quantity: 1, // Set initial quantity to 1
+        ));
+      }
+
+      _showAddMessage("${item.title} added to cart!");
+    });
+  }
+
+  void _increaseItemQuantity(int index) {
+    setState(() {
+      widget.cartData.items[index].quantity++;
+    });
+  }
+
+  void _decreaseItemQuantity(int index) {
+    setState(() {
+      if (widget.cartData.items[index].quantity > 1) {
+        widget.cartData.items[index].quantity--;
+      } else {
+        widget.cartData.items.removeAt(index);
+      }
     });
   }
 
@@ -75,8 +137,7 @@ class _BasketPageState extends State<BasketPage> {
               const SizedBox(height: 16),
               _buildTotalSum(),
               const SizedBox(height: 16),
-              isLargeScreen ? _buildCommentsSection() : Container(),
-              if (!isLargeScreen) _buildCommentsSection(), // Если экран маленький, показываем комментарии
+              _buildCommentsSection(),
             ],
           ),
         ),
@@ -86,7 +147,7 @@ class _BasketPageState extends State<BasketPage> {
 
   Widget _buildNavButtons(BuildContext context, bool isLargeScreen) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween, // Выравнивание кнопок с пространством между ними
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         for (String title in ["Main Page", "Menu", "Reviews", "Contacts"])
           _buildNavButton(context, title, isLargeScreen),
@@ -96,15 +157,14 @@ class _BasketPageState extends State<BasketPage> {
 
   Widget _buildNavButton(BuildContext context, String text, bool isLargeScreen) {
     return Container(
-      width: isLargeScreen ? 120 : 80, // Уменьшение ширины кнопок
+      width: isLargeScreen ? 120 : 80,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.pink[100],
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Увеличение радиуса закругления
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           padding: EdgeInsets.symmetric(vertical: isLargeScreen ? 8 : 4),
         ),
         onPressed: () {
-          // Логика навигации
           switch (text) {
             case "Main Page":
               Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
@@ -116,13 +176,13 @@ class _BasketPageState extends State<BasketPage> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
               break;
             case "Contacts":
-            // Действие для Contacts
+            // Action for Contacts
               break;
           }
         },
         child: Text(
           text,
-          style: GoogleFonts.poppins(fontSize: isLargeScreen ? 18 : 13, fontWeight: FontWeight.w600, color: Colors.black), // Размер шрифта
+          style: GoogleFonts.poppins(fontSize: isLargeScreen ? 18 : 13, fontWeight: FontWeight.w600, color: Colors.black),
         ),
       ),
     );
@@ -144,50 +204,65 @@ class _BasketPageState extends State<BasketPage> {
             style: GoogleFonts.mali(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const Divider(color: Colors.pinkAccent),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: _orderItems.keys.length,
-            itemBuilder: (context, index) {
-              final item = _orderItems.keys.elementAt(index);
-              final quantity = _orderItems[item]!;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      item,
-                      style: GoogleFonts.mali(fontSize: 16),
-                    ),
-                    Row(
+          if (widget.cartData.items.isEmpty)
+            Text(
+              "Your basket is empty.",
+              style: GoogleFonts.mali(fontSize: 16, fontStyle: FontStyle.italic),
+            )
+          else
+            SizedBox(
+              height: 200, // Set a fixed height for the list
+              child: ListView.builder(
+                itemCount: widget.cartData.items.length,
+                itemBuilder: (context, index) {
+                  final item = widget.cartData.items[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle, color: Colors.red),
-                          onPressed: () => _decrementItem(item),
+                        Expanded(
+                          child: Text(
+                            "${item.title}",
+                            style: GoogleFonts.mali(fontSize: 16),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.remove),
+                              onPressed: () => _decreaseItemQuantity(index),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                "${item.quantity}",
+                                style: GoogleFonts.mali(fontSize: 16),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: () => _increaseItemQuantity(index),
+                            ),
+                          ],
                         ),
                         Text(
-                          "x$quantity",
+                          "${(item.price * item.quantity).toStringAsFixed(2)} BYN", // Multiply price by quantity
                           style: GoogleFonts.mali(fontSize: 16),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle, color: Colors.green),
-                          onPressed: () => _incrementItem(item),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildTotalSum() {
-    final totalSum = _orderItems.values.fold(0, (sum, quantity) => sum + quantity * 50); // Пример цены
+    final totalSum = widget.cartData.items.fold(0.0, (sum, item) => sum + (item.price * item.quantity)); // Calculate total sum
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -203,7 +278,7 @@ class _BasketPageState extends State<BasketPage> {
             style: GoogleFonts.mali(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Text(
-            "$totalSum BYN",
+            "${totalSum.toStringAsFixed(2)} BYN", // Change currency to BYN
             style: GoogleFonts.mali(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
@@ -247,12 +322,12 @@ class _BasketPageState extends State<BasketPage> {
               style: GoogleFonts.mali(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
-          if (_sendMessage != null)
+          if (_sendMessage != null) // Show message under the button
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 _sendMessage!,
-                style: GoogleFonts.mali(color: Colors.green, fontSize: 16),
+                style: TextStyle(color: Colors.black54, fontSize: 16),
               ),
             ),
         ],

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
-import 'menu_page.dart'; // Импортируем меню
-import 'reviews_page.dart'; // Импортируем страницу отзывов
 
 void main() => runApp(const MyApp());
 
