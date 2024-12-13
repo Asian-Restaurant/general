@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'menu_page.dart' as menu; // Импортируем MenuPage с алиасом
-import 'reviews_page.dart' as reviews; // Импортируем ReviewsPage с алиасом
+import 'basket_page.dart';
+import 'menu_page.dart' as menu;
+import 'reviews_page.dart' as reviews;
 
 class MainPage extends StatelessWidget {
   @override
@@ -43,18 +44,13 @@ class MainPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton(context, "Menu", () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const menu.MenuPage()),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const menu.MenuPage()),);
                   }),
                   _buildNavButton(context, "Basket", () {
-                    // Действие для Basket
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPage()));
                   }),
                   _buildNavButton(context, "Reviews", () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()),
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()),
                     );
                   }),
                   _buildNavButton(context, "Contacts", () {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'reviews_page.dart' as reviews;
 import 'main_page.dart';
+import 'basket_page.dart' as basket;
 
 class MenuPage extends StatelessWidget {
   const MenuPage({Key? key}) : super(key: key);
@@ -22,7 +23,7 @@ class MenuPage extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'ASIAN PARADISE',
-          style: GoogleFonts.pacifico(color: Colors.black, fontSize: 24),
+          style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
         ),
       ),
       body: Padding(
@@ -39,11 +40,12 @@ class MenuPage extends StatelessWidget {
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Basket", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => basket.BasketPage()));
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Reviews", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewsPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()),
+                  );
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Contacts", () {
