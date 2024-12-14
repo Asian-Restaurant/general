@@ -1,6 +1,6 @@
+import 'package:asian_paradise/%D1%81art.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'сart.dart';
 
 class DishPage extends StatelessWidget {
   final String title;
@@ -65,7 +65,7 @@ class DishPage extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: Text(
-                "Price: \$${price.toStringAsFixed(2)}",
+                "Price: ${price.toStringAsFixed(2)} BYN",
                 style: GoogleFonts.poppins(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -73,8 +73,7 @@ class DishPage extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                _addToCart();
-                Navigator.pop(context); // Вернуться на предыдущую страницу
+                _addToCart(context);
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
@@ -91,15 +90,16 @@ class DishPage extends StatelessWidget {
     );
   }
 
-  void _addToCart() {
+  void _addToCart(BuildContext context) {
     final existingItemIndex = cart.items.indexWhere((item) => item.title == title);
-
     if (existingItemIndex != -1) {
-      // Увеличиваем количество, если товар уже есть
       cart.items[existingItemIndex].quantity++;
+      print("Increased quantity for item: ${cart.items[existingItemIndex].title}");
     } else {
-      // Добавляем новый товар в корзину
       cart.addItem(CartItem(title: title, imagePath: imagePath, price: price));
+      print("Added new item to cart: $title");
     }
+
+    Navigator.pop(context, true);
   }
 }

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'database/database_helper.dart';
 import 'main_page.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Инициализация фрейма Flutter
+  final dbHelper = DatabaseHelper();
+  await dbHelper.database; // Инициализация базы данных
+
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -9,7 +16,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MainPage(),
+      title: 'Asian Paradise', // Название приложения
+      home: MainPage(), // Главная страница приложения
     );
   }
 }
