@@ -6,7 +6,7 @@ import 'menu_page.dart' as menu;
 import 'reviews_page.dart' as reviews;
 
 class MainPage extends StatelessWidget {
-  final Cart cart = Cart();
+  final Cart cart = Cart(); // Создайте экземпляр корзины
 
   @override
   Widget build(BuildContext context) {

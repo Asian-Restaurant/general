@@ -37,22 +37,12 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    // Получаем путь для базы данных
-    String path = join(await getDatabasesPath(), 'app.db'); // Используем путь как строку
-    print('Database path: $path'); // Логирование пути к базе данных
-
-    // Создаем или открываем базу данных
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String path = join(documentsDirectory.path, 'app.db');
+    return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
-    print('Creating database tables...'); // Логирование создания таблиц
-
-    // Создание таблицы users
     await db.execute('''
       CREATE TABLE users (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,19 +53,16 @@ class DatabaseHelper {
       )
     ''');
 
-    // Создание таблицы menu_items
     await db.execute('''
       CREATE TABLE menu_items (
         item_id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         description TEXT,
         price REAL,
-        stock INTEGER,
-        imagePath TEXT
+        stock INTEGER
       )
     ''');
 
-    // Создание таблицы cart
     await db.execute('''
       CREATE TABLE cart (
         cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,7 +74,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Создание таблицы orders
     await db.execute('''
       CREATE TABLE orders (
         order_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -98,7 +84,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Создание таблицы delivery_addresses
     await db.execute('''
       CREATE TABLE delivery_addresses (
         address_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,7 +96,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Создание таблицы reviews
     await db.execute('''
       CREATE TABLE reviews (
         review_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -124,115 +108,89 @@ class DatabaseHelper {
     ''');
   }
 
-  // Вставка данных в таблицу users
+  // Insert methods
   Future<void> insertUser(Map<String, dynamic> user) async {
     final db = await database;
-    try {
-      await db.insert('users', user);
-      print('User added: $user');
-    } catch (e) {
-      print('Error adding user: $e');
-    }
+    await db.insert('users', user);
   }
 
-  // Вставка данных в таблицу menu_items
   Future<void> insertMenuItem(Map<String, dynamic> menuItem) async {
     final db = await database;
-    try {
-      await db.insert('menu_items', menuItem);
-      print('Menu item added: $menuItem');
-    } catch (e) {
-      print('Error adding menu item: $e');
-    }
+    await db.insert('menu_items', menuItem);
   }
 
-  // Вставка данных в таблицу cart
   Future<void> insertCartItem(Map<String, dynamic> cartItem) async {
     final db = await database;
-    try {
-      await db.insert('cart', cartItem);
-      print('Cart item added: $cartItem');
-    } catch (e) {
-      print('Error adding cart item: $e');
-    }
+    await db.insert('cart', cartItem);
   }
 
-  // Вставка данных в таблицу orders
   Future<void> insertOrder(Map<String, dynamic> order) async {
     final db = await database;
-    try {
-      await db.insert('orders', order);
-      print('Order added: $order');
-    } catch (e) {
-      print('Error adding order: $e');
-    }
+    await db.insert('orders', order);
   }
 
-  // Вставка данных в таблицу delivery_addresses
   Future<void> insertDeliveryAddress(Map<String, dynamic> address) async {
     final db = await database;
-    try {
-      await db.insert('delivery_addresses', address);
-      print('Delivery address added: $address');
-    } catch (e) {
-      print('Error adding delivery address: $e');
-    }
+    await db.insert('delivery_addresses', address);
   }
 
-  // Вставка данных в таблицу reviews
   Future<void> insertReview(Map<String, dynamic> review) async {
     final db = await database;
-    try {
-      await db.insert('reviews', review);
-      print('Review added: $review');
-    } catch (e) {
-      print('Error adding review: $e');
-    }
+    await db.insert('reviews', review);
   }
 
-  // Загрузка данных о корзине
-  Future<List<CartItem>> loadCart(int userId) async {
+  // Query methods
+  Future<List<Map<String, dynamic>>> getUsers() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT c.cart_id, c.user_id, c.item_id, c.quantity, c.total_price, 
-             m.name as title, m.imagePath 
-      FROM cart c 
-      JOIN menu_items m ON c.item_id = m.item_id 
-      WHERE c.user_id = ?
-    ''', [userId]);
-
-    print('Loaded cart items: $maps'); // Проверьте, какие данные загружаются
-    return List.generate(maps.length, (i) {
-      return CartItem(
-        itemId: maps[i]['item_id'],
-        title: maps[i]['title'] ?? '', // Название товара из menu_items
-        imagePath: maps[i]['imagePath'] ?? '', // Путь к изображению товара
-        price: maps[i]['total_price'] / maps[i]['quantity'],
-        quantity: maps[i]['quantity'],
-      );
-    });
+    return await db.query('users');
   }
 
-  // Сохранение данных в корзину
-  Future<void> saveCart(List<CartItem> cartItems, int userId) async {
+  Future<List<Map<String, dynamic>>> getMenuItems() async {
     final db = await database;
-
-    // Очистка старых данных для пользователя
-    await db.delete('cart', where: 'user_id = ?', whereArgs: [userId]);
-
-    // Сохранение новых товаров в корзину
-    for (var item in cartItems) {
-      await db.insert('cart', {
-        'user_id': userId,
-        'item_id': item.itemId,
-        'quantity': item.quantity,
-        'total_price': item.price * item.quantity,
-      });
-      print('Added new item to cart: ${item.title}');
-    }
+    return await db.query('menu_items');
   }
 
-  // Дополнительные методы для удаления данных из базы
+  Future<List<Map<String, dynamic>>> getCartItems(int userId) async {
+    final db = await database;
+    return await db.query(
+      'cart',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getOrders() async {
+    final db = await database;
+    return await db.query('orders');
+  }
+
+  Future<List<Map<String, dynamic>>> getDeliveryAddresses() async {
+    final db = await database;
+    return await db.query('delivery_addresses');
+  }
+
+  Future<List<Map<String, dynamic>>> getReviews() async {
+    final db = await database;
+    return await db.query('reviews');
+  }
+
+  // Update methods
+  Future<void> updateUser(int id, Map<String, dynamic> user) async {
+    final db = await database;
+    await db.update('users', user, where: 'user_id = ?', whereArgs: [id]);
+  }
+
+  Future<void> updateMenuItem(int id, Map<String, dynamic> menuItem) async {
+    final db = await database;
+    await db.update('menu_items', menuItem, where: 'item_id = ?', whereArgs: [id]);
+  }
+
+  Future<void> updateCartItem(int id, Map<String, dynamic> cartItem) async {
+    final db = await database;
+    await db.update('cart', cartItem, where: 'cart_id = ?', whereArgs: [id]);
+  }
+
+  // Delete methods
   Future<void> deleteUser(int id) async {
     final db = await database;
     await db.delete('users', where: 'user_id = ?', whereArgs: [id]);
@@ -261,5 +219,42 @@ class DatabaseHelper {
   Future<void> deleteReview(int id) async {
     final db = await database;
     await db.delete('reviews', where: 'review_id = ?', whereArgs: [id]);
+  }
+
+  // Save and load cart methods
+  Future<void> saveCart(List<CartItem> cartItems, int userId) async {
+    final db = await database;
+
+    // Очистка старых данных для пользователя
+    await db.delete('cart', where: 'user_id = ?', whereArgs: [userId]);
+
+    // Сохранение новых товаров в корзину
+    for (var item in cartItems) {
+      await db.insert('cart', {
+        'user_id': userId,
+        'item_id': item.itemId,
+        'quantity': item.quantity,
+        'total_price': item.price * item.quantity,
+      });
+    }
+  }
+
+  Future<List<CartItem>> loadCart(int userId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'cart',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+
+    return List.generate(maps.length, (i) {
+      return CartItem(
+        itemId: maps[i]['item_id'],
+        title: maps[i]['title'], // Убедитесь, что это поле добавлено в CartItem
+        imagePath: maps[i]['imagePath'], // Убедитесь, что это поле добавлено в CartItem
+        price: maps[i]['total_price'] / maps[i]['quantity'],
+        quantity: maps[i]['quantity'],
+      );
+    });
   }
 }
