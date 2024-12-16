@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'reviews_page.dart' as reviews;
 import 'main_page.dart';
 import 'basket_page.dart' as basket;
+import 'address_page.dart' as address;
 import 'dish_page.dart';
 import 'сart.dart';
 
@@ -51,8 +52,8 @@ class MenuPage extends StatelessWidget {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
                 }),
                 const SizedBox(height: 8),
-                _buildNavButton(context, "Contacts", () {
-                  // Действие для Contacts
+                _buildNavButton(context, "Delivery", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPage()));
                 }),
               ],
             ),

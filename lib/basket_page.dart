@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'database/database_helper.dart' as db; // Alias for database_helper.dart
 import 'сart.dart' as cart; // Alias for сart.dart
 import 'reviews_page.dart' as reviews;
+import 'address_page.dart' as address;
 import 'main_page.dart';
 import 'menu_page.dart';
 
@@ -149,7 +150,7 @@ class _BasketPageState extends State<BasketPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (String title in ["Main Page", "Menu", "Reviews", "Contacts"])
+        for (String title in ["Main Page", "Menu", "Reviews", "Delivery"])
           _buildNavButton(context, title, isLargeScreen),
       ],
     );
@@ -175,8 +176,8 @@ class _BasketPageState extends State<BasketPage> {
             case "Reviews":
               Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
               break;
-            case "Contacts":
-            // Action for Contacts
+            case "Delivery":
+              Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPage()));
               break;
           }
         },

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'basket_page.dart';
 import 'menu_page.dart' as menu;
 import 'reviews_page.dart' as reviews;
+import 'address_page.dart' as address;
 
 class MainPage extends StatelessWidget {
   final Cart cart = Cart(); // Создайте экземпляр корзины
@@ -55,8 +56,8 @@ class MainPage extends StatelessWidget {
                   _buildNavButton(context, "Reviews", () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
                   }),
-                  _buildNavButton(context, "Contacts", () {
-                    // Действие для Contacts
+                  _buildNavButton(context, "Delivery", () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPage()));
                   }),
                 ],
               ),
