@@ -1,18 +1,19 @@
+import 'package:asian_paradise/web/address_page_web.dart';
+import 'package:asian_paradise/web/basket_page_web.dart';
+import 'package:asian_paradise/web/dish_page_web.dart';
+import 'package:asian_paradise/web/main_page_web.dart';
+import 'package:asian_paradise/web/reviews_page_web.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'reviews_page.dart' as reviews;
-import 'main_page.dart';
-import 'basket_page.dart' as basket;
-import 'address_page.dart' as address;
-import 'dish_page.dart';
-import 'сart.dart';
+import '../database/сart.dart';
 
-class MenuPage extends StatelessWidget {
-  const MenuPage({Key? key}) : super(key: key);
+
+class MenuPageWeb extends StatelessWidget {
+  const MenuPageWeb({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final cart = Cart(); // Создайте экземпляр Cart здесь
+    final cart = Cart();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,24 +42,24 @@ class MenuPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildNavButton(context, "Main Page", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageWeb()));
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Basket", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => basket.BasketPage(cartData: cart)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageWeb(cartData: cart)));
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Reviews", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageWeb()));
                 }),
                 const SizedBox(height: 8),
                 _buildNavButton(context, "Delivery", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageWeb()));
                 }),
               ],
             ),
             const SizedBox(width: 16),
-            // Изображения
+            // Сетка с изображениями
             Expanded(
               child: _buildFoodGrid(context, cart), // Передайте cart сюда
             ),
@@ -157,9 +158,11 @@ class MenuPage extends StatelessWidget {
               ),
             ),
             GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _getCrossAxisCount(context), // Используем метод для определения количества колонок
-                childAspectRatio: 1,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, // Три элемента в строке для веб-версии
+                childAspectRatio: 0.7,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
               ),
               itemCount: foodCategories[category]!.length,
               shrinkWrap: true,
@@ -188,36 +191,23 @@ class MenuPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16.0),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-                width: MediaQuery.of(context).size.width < 600 ? 140 : 220,
-                height: MediaQuery.of(context).size.width < 600 ? 100 : 180,
-              ),
-            ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(color: Colors.pink[300]!, width: 5),
-                ),
-              ),
-            ),
-          ],
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16.0),
+          child: Image.asset(
+            imagePath,
+            fit: BoxFit.cover,
+            width: 200, // Ширина для веб-версии
+            height: 150, // Высота для веб-версии
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         TextButton(
           onPressed: () {
             // Переход на страницу блюда с передачей корзины
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DishPage(
+                builder: (context) => DishPageWeb(
                   title: title,
                   imagePath: imagePath,
                   description: description,
@@ -230,14 +220,14 @@ class MenuPage extends StatelessWidget {
           },
           style: TextButton.styleFrom(
             backgroundColor: Colors.pink[200],
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           child: Text(
             title,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
@@ -245,18 +235,6 @@ class MenuPage extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  // Метод для определения количества колонок в зависимости от ширины экрана
-  int _getCrossAxisCount(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    if (width >= 900) {
-      return 3; // Большие экраны
-    } else if (width >= 600) {
-      return 2; // Средние экраны
-    } else {
-      return 1; // Маленькие экраны
-    }
   }
 
   // Метод для создания кнопки навигации

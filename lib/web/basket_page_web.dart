@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'database/database_helper.dart' as db; // Alias for database_helper.dart
-import 'сart.dart' as cart; // Alias for сart.dart
-import 'reviews_page.dart' as reviews;
-import 'address_page.dart' as address;
-import 'main_page.dart';
-import 'menu_page.dart';
+import '../database/database_helper.dart' as db;
+import '../database/сart.dart' as cart;
+import '../web/reviews_page_web.dart' as reviews;
+import '../web/address_page_web.dart' as address;
+import '../web/main_page_web.dart';
+import '../web/menu_page_web.dart';
 
-class BasketPage extends StatefulWidget {
-  final cart.Cart cartData; // Renamed from cart to cartData to avoid shadowing
 
-  const BasketPage({Key? key, required this.cartData}) : super(key: key);
+class BasketPageWeb extends StatefulWidget {
+  final cart.Cart cartData;
+
+  const BasketPageWeb({super.key, required this.cartData});
 
   @override
   _BasketPageState createState() => _BasketPageState();
 }
 
-class _BasketPageState extends State<BasketPage> {
+class _BasketPageState extends State<BasketPageWeb> {
   final TextEditingController _commentController = TextEditingController();
   final db.DatabaseHelper _dbHelper = db.DatabaseHelper();
   String? _sendMessage;
@@ -34,7 +35,7 @@ class _BasketPageState extends State<BasketPage> {
   }
 
   void _loadCart() async {
-    final userId = 1; // Replace with the actual user ID
+    const userId = 1; // Replace with the actual user ID
     final loadedItems = await _dbHelper.loadCart(userId);
     setState(() {
       widget.cartData.items.clear(); // Clear current items
@@ -48,7 +49,7 @@ class _BasketPageState extends State<BasketPage> {
   }
 
   void _saveCart() async {
-    final userId = 1; // Replace with the actual user ID
+    const userId = 1; // Replace with the actual user ID
     await _dbHelper.saveCart(widget.cartData.items.cast<db.CartItem>(), userId);
   }
 
@@ -61,39 +62,6 @@ class _BasketPageState extends State<BasketPage> {
       setState(() {
         _sendMessage = null; // Remove message after 2 seconds
       });
-    });
-  }
-
-  void _showAddMessage(String message) {
-    setState(() {
-      _sendMessage = message;
-    });
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _sendMessage = null;
-      });
-    });
-  }
-
-  void _addItemToCart(cart.CartItem item) {
-    setState(() {
-      // Check if item already exists in cart
-      final existingItemIndex = widget.cartData.items.indexWhere((cartItem) => cartItem.title == item.title);
-
-      if (existingItemIndex != -1) {
-        // If item already exists, increase quantity
-        widget.cartData.items[existingItemIndex].quantity++;
-      } else {
-        // If item does not exist, add it to cart
-        widget.cartData.addItem(cart.CartItem(
-          title: item.title,
-          imagePath: item.imagePath,
-          price: item.price,
-          quantity: 1, // Set initial quantity to 1
-        ));
-      }
-
-      _showAddMessage("${item.title} added to cart!");
     });
   }
 
@@ -111,6 +79,25 @@ class _BasketPageState extends State<BasketPage> {
         widget.cartData.items.removeAt(index);
       }
     });
+  }
+
+  void _navigateTo(String page) {
+    _saveCart();
+
+    switch (page) {
+      case "Main Page":
+        Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageWeb()));
+        break;
+      case "Menu":
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageWeb()));
+        break;
+      case "Reviews":
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPageWeb()));
+        break;
+      case "Delivery":
+        Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPageWeb()));
+        break;
+    }
   }
 
   @override
@@ -157,7 +144,7 @@ class _BasketPageState extends State<BasketPage> {
   }
 
   Widget _buildNavButton(BuildContext context, String text, bool isLargeScreen) {
-    return Container(
+    return SizedBox(
       width: isLargeScreen ? 120 : 80,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -165,22 +152,7 @@ class _BasketPageState extends State<BasketPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           padding: EdgeInsets.symmetric(vertical: isLargeScreen ? 8 : 4),
         ),
-        onPressed: () {
-          switch (text) {
-            case "Main Page":
-              Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
-              break;
-            case "Menu":
-              Navigator.push(context, MaterialPageRoute(builder: (context) => MenuPage()));
-              break;
-            case "Reviews":
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
-              break;
-            case "Delivery":
-              Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPage()));
-              break;
-          }
-        },
+        onPressed: () => _navigateTo(text),
         child: Text(
           text,
           style: GoogleFonts.poppins(fontSize: isLargeScreen ? 18 : 13, fontWeight: FontWeight.w600, color: Colors.black),
@@ -212,7 +184,7 @@ class _BasketPageState extends State<BasketPage> {
             )
           else
             SizedBox(
-              height: 200, // Set a fixed height for the list
+              height: 200,
               child: ListView.builder(
                 itemCount: widget.cartData.items.length,
                 itemBuilder: (context, index) {
@@ -224,14 +196,14 @@ class _BasketPageState extends State<BasketPage> {
                       children: [
                         Expanded(
                           child: Text(
-                            "${item.title}",
+                            item.title,
                             style: GoogleFonts.mali(fontSize: 16),
                           ),
                         ),
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.remove),
+                              icon: const Icon(Icons.remove),
                               onPressed: () => _decreaseItemQuantity(index),
                             ),
                             Padding(
@@ -242,13 +214,13 @@ class _BasketPageState extends State<BasketPage> {
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.add),
+                              icon: const Icon(Icons.add),
                               onPressed: () => _increaseItemQuantity(index),
                             ),
                           ],
                         ),
                         Text(
-                          "${(item.price * item.quantity).toStringAsFixed(2)} BYN", // Multiply price by quantity
+                          "${(item.price * item.quantity).toStringAsFixed(2)} BYN",
                           style: GoogleFonts.mali(fontSize: 16),
                         ),
                       ],
@@ -263,7 +235,7 @@ class _BasketPageState extends State<BasketPage> {
   }
 
   Widget _buildTotalSum() {
-    final totalSum = widget.cartData.items.fold(0.0, (sum, item) => sum + (item.price * item.quantity)); // Calculate total sum
+    final totalSum = widget.cartData.items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -279,7 +251,7 @@ class _BasketPageState extends State<BasketPage> {
             style: GoogleFonts.mali(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Text(
-            "${totalSum.toStringAsFixed(2)} BYN", // Change currency to BYN
+            "${totalSum.toStringAsFixed(2)} BYN",
             style: GoogleFonts.mali(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
@@ -323,12 +295,12 @@ class _BasketPageState extends State<BasketPage> {
               style: GoogleFonts.mali(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
-          if (_sendMessage != null) // Show message under the button
+          if (_sendMessage != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 _sendMessage!,
-                style: TextStyle(color: Colors.black54, fontSize: 16),
+                style: const TextStyle(color: Colors.black54, fontSize: 16),
               ),
             ),
         ],

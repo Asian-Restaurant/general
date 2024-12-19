@@ -1,13 +1,14 @@
-import 'package:asian_paradise/%D1%81art.dart';
+import 'package:asian_paradise/mobile/address_page_mobile.dart';
+import 'package:asian_paradise/mobile/basket_page_mobile.dart';
+import 'package:asian_paradise/mobile/menu_page_mobile.dart';
+import 'package:asian_paradise/mobile/reviews_page_mobile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'basket_page.dart';
-import 'menu_page.dart' as menu;
-import 'reviews_page.dart' as reviews;
-import 'address_page.dart' as address;
+import '../database/сart.dart';
+import 'login_page_mobile.dart';
 
-class MainPage extends StatelessWidget {
-  final Cart cart = Cart(); // Создайте экземпляр корзины
+class MainPageMobile extends StatelessWidget {
+  final Cart cart = Cart();
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +26,26 @@ class MainPage extends StatelessWidget {
           'ASIAN PARADISE',
           style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AccountPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.login, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPageMobile()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -32,7 +53,6 @@ class MainPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Заголовок
               Text(
                 "WELCOME TO YOUR LITTLE DREAMWORLD",
                 style: GoogleFonts.mali(
@@ -43,62 +63,35 @@ class MainPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              // Кнопки навигации
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton(context, "Menu", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const menu.MenuPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageMobile()));
                   }),
                   _buildNavButton(context, "Basket", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPage(cartData: cart)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageMobile(cartData: cart)));
                   }),
                   _buildNavButton(context, "Reviews", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageMobile()));
                   }),
                   _buildNavButton(context, "Delivery", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => address.AddressPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageMobile()));
                   }),
                 ],
               ),
               const SizedBox(height: 20),
               // Категории еды
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  if (constraints.maxWidth < 600) {
-                    // Мобильная версия: карточки друг под другом
-                    return Column(
-                      children: [
-                        _buildFoodCard("assets/sushi.jpg", "Try classic of Japan"),
-                        const SizedBox(height: 16),
-                        _buildFoodCard("assets/indian.jpg", "Would you like to fall in love with India?"),
-                        const SizedBox(height: 16),
-                        _buildFoodCard("assets/thai.jpg", "Say Hello to Thailand!"),
-                        const SizedBox(height: 16),
-                        _buildFoodCard("assets/korean.jpg", "Must have Korean set"),
-                      ],
-                    );
-                  } else {
-                    // Веб-версия: карточки в сетке
-                    return GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0,
-                      ),
-                      itemBuilder: (context, index) {
-                        return _buildFoodCard(
-                          ["assets/sushi.jpg", "assets/indian.jpg", "assets/thai.jpg", "assets/korean.jpg"][index],
-                          ["Try classic of Japan", "Would you like to fall in love with India?", "Say Hello to Thailand!", "Must have Korean set"][index],
-                        );
-                      },
-                      itemCount: 4,
-                    );
-                  }
-                },
+              Column(
+                children: [
+                  _buildFoodCard("assets/sushi.jpg", "Try classic of Japan"),
+                  const SizedBox(height: 16),
+                  _buildFoodCard("assets/indian.jpg", "Would you like to fall in love with India?"),
+                  const SizedBox(height: 16),
+                  _buildFoodCard("assets/thai.jpg", "Say Hello to Thailand!"),
+                  const SizedBox(height: 16),
+                  _buildFoodCard("assets/korean.jpg", "Must have Korean set"),
+                ],
               ),
             ],
           ),
@@ -107,7 +100,6 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  // Виджет для кнопок навигации
   static Widget _buildNavButton(BuildContext context, String title, VoidCallback onPressed) {
     return TextButton(
       onPressed: onPressed,
@@ -126,7 +118,6 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  // Виджет для карточек с едой
   Widget _buildFoodCard(String imagePath, String description) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -160,6 +151,17 @@ class MainPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// Dummy AccountPage class for navigation
+class AccountPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Account")),
+      body: Center(child: Text("User Account Page")),
     );
   }
 }

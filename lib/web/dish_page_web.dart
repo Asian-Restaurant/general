@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'сart.dart';
+import '../database/сart.dart';
 
-class DishPage extends StatelessWidget {
+class DishPageWeb extends StatelessWidget {
   final String title;
   final String imagePath;
   final String description;
@@ -10,7 +10,7 @@ class DishPage extends StatelessWidget {
   final double price;
   final Cart cart;
 
-  const DishPage({
+  const DishPageWeb({
     Key? key,
     required this.title,
     required this.imagePath,
@@ -31,7 +31,7 @@ class DishPage extends StatelessWidget {
         backgroundColor: Colors.pink[100],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -43,14 +43,14 @@ class DishPage extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(11),
-                child: Image.asset(imagePath),
+                child: Image.asset(imagePath, fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 16),
             Center(
               child: Text(
                 description,
-                style: GoogleFonts.poppins(fontSize: 16),
+                style: GoogleFonts.poppins(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -58,23 +58,22 @@ class DishPage extends StatelessWidget {
             Center(
               child: Text(
                 "Weight: ${weight}g",
-                style: GoogleFonts.poppins(fontSize: 16),
+                style: GoogleFonts.poppins(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 16),
             Center(
               child: Text(
-                "Price: \$${price.toStringAsFixed(2)}",
-                style: GoogleFonts.poppins(fontSize: 16),
+                "Price: ${price.toStringAsFixed(2)} BYN",
+                style: GoogleFonts.poppins(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                _addToCart();
-                Navigator.pop(context); // Вернуться на предыдущую страницу
+                _addToCart(context);
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
@@ -82,7 +81,7 @@ class DishPage extends StatelessWidget {
               ),
               child: Text(
                 "Add to Cart",
-                style: GoogleFonts.poppins(fontSize: 16),
+                style: GoogleFonts.poppins(fontSize: 18),
               ),
             ),
           ],
@@ -91,15 +90,16 @@ class DishPage extends StatelessWidget {
     );
   }
 
-  void _addToCart() {
+  void _addToCart(BuildContext context) {
     final existingItemIndex = cart.items.indexWhere((item) => item.title == title);
-
     if (existingItemIndex != -1) {
-      // Увеличиваем количество, если товар уже есть
       cart.items[existingItemIndex].quantity++;
+      print("Increased quantity for item: ${cart.items[existingItemIndex].title}");
     } else {
-      // Добавляем новый товар в корзину
       cart.addItem(CartItem(title: title, imagePath: imagePath, price: price));
+      print("Added new item to cart: $title");
     }
+
+    Navigator.pop(context, true);
   }
 }
