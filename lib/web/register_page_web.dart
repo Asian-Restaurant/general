@@ -29,87 +29,115 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
         ),
         centerTitle: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'e-mail'),
-                    ),
-                    TextField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'phone number'),
-                    ),
-                    TextField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(labelText: 'password'),
-                      obscureText: true,
-                    ),
-                    TextField(
-                      controller: _repeatPasswordController,
-                      decoration: const InputDecoration(labelText: 'repeat password'),
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Логика регистрации
-                        String email = _emailController.text;
-                        String phone = _phoneController.text;
-                        String password = _passwordController.text;
-                        String repeatPassword = _repeatPasswordController.text;
-
-                        // Проверка на пустые поля
-                        if (email.isEmpty || phone.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
-                          _showErrorDialog('Please fill in all fields.');
-                          return;
-                        }
-
-                        // Проверка на совпадение паролей
-                        if (password != repeatPassword) {
-                          _showErrorDialog('Passwords do not match.');
-                          return;
-                        }
-
-                        // Вставка пользователя в базу данных
-                        await _databaseHelper.insertUser({
-                          'name': phone, // Здесь можно заменить на имя, если оно будет добавлено
-                          'email': email,
-                          'password': password,
-                          'phone': phone,
-                        });
-
-                        // Переход на главную страницу
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => MainPageWeb()),
-                        );
-                      },
-                      child: const Text('Register'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink[200],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Back to Login'),
-                    ),
-                  ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0), // Увеличенные отступы для веба
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'e-mail',
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  ),
+                  filled: true,
+                  fillColor: Colors.pink[50],
                 ),
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 10),
+              TextField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  labelText: 'phone number',
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  ),
+                  filled: true,
+                  fillColor: Colors.pink[50],
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'password',
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  ),
+                  filled: true,
+                  fillColor: Colors.pink[50],
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _repeatPasswordController,
+                decoration: InputDecoration(
+                  labelText: 'repeat password',
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  ),
+                  filled: true,
+                  fillColor: Colors.pink[50],
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  // Логика регистрации
+                  String email = _emailController.text;
+                  String phone = _phoneController.text;
+                  String password = _passwordController.text;
+                  String repeatPassword = _repeatPasswordController.text;
+
+                  // Проверка на пустые поля
+                  if (email.isEmpty || phone.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
+                    _showErrorDialog('Please fill in all fields.');
+                    return;
+                  }
+
+                  // Проверка на совпадение паролей
+                  if (password != repeatPassword) {
+                    _showErrorDialog('Passwords do not match.');
+                    return;
+                  }
+
+                  // Вставка пользователя в базу данных
+                  await _databaseHelper.insertUser({
+                    'name': phone, // Здесь можно заменить на имя, если оно будет добавлено
+                    'email': email,
+                    'password': password,
+                    'phone': phone,
+                  });
+
+                  // Переход на главную страницу
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainPageWeb()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black, // Черный цвет кнопки
+                  minimumSize: const Size(double.infinity, 50), // Широкая кнопка
+                ),
+                child: const Text(
+                  'Register',
+                  style: TextStyle(color: Colors.white), // Белый текст
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Back to Login', style: TextStyle(color: Colors.pink)),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

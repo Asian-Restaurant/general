@@ -36,27 +36,22 @@ class MenuPageMobile extends StatelessWidget {
         child: Column(
           children: [
             // Вертикальное расположение кнопок навигации
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildNavButton(context, "Main Page", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageMobile()));
-                  }),
-                  const SizedBox(height: 8),
-                  _buildNavButton(context, "Basket", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageMobile(cartData: cart)));
-                  }),
-                  const SizedBox(height: 8),
-                  _buildNavButton(context, "Reviews", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageMobile()));
-                  }),
-                  const SizedBox(height: 8),
-                  _buildNavButton(context, "Delivery", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageMobile()));
-                  }),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNavButton(context, "Main Page", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageMobile()));
+                }),
+                _buildNavButton(context, "Basket", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageMobile(cartData: cart)));
+                }),
+                _buildNavButton(context, "Reviews", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageMobile()));
+                }),
+                _buildNavButton(context, "Delivery", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageMobile()));
+                }),
+              ],
             ),
             const SizedBox(height: 16),
             // Сетка с изображениями
@@ -127,14 +122,14 @@ class MenuPageMobile extends StatelessWidget {
           "price": 14.50,
         },
         {
-          "image": "assets/dim_sum.jpg",
+          "image": "assets/dim sum.jpg",
           "title": "Dim Sum",
           "description": "Steamed buns with various fillings.",
           "weight": 250.0,
           "price": 16.00,
         },
         {
-          "image": "assets/char_siu.jpg",
+          "image": "assets/char siu.jpg",
           "title": "Char Siu",
           "description": "Chinese BBQ pork with a sweet glaze.",
           "weight": 300.0,
@@ -191,13 +186,19 @@ class MenuPageMobile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
-          child: Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-            width: 150, // Ширина для мобильной версии
-            height: 100, // Высота для мобильной версии
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.pink[300] ?? Colors.pink, width: 5), // Розовая рамка
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11.0),
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              width: 150, // Ширина для мобильной версии
+              height: 100, // Высота для мобильной версии
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -244,7 +245,7 @@ class MenuPageMobile extends StatelessWidget {
         onPressed: onPressed,
         style: TextButton.styleFrom(
           backgroundColor: Colors.pink[100],
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         child: Text(

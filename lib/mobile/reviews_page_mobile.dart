@@ -69,7 +69,7 @@ class _ReviewsPageMobileState extends State<ReviewsPageMobile> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Закрываем диалог
                 Navigator.pushNamed(context, '/login'); // Переход на страницу логина
               },
               child: const Text('Login'),

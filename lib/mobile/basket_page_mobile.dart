@@ -141,24 +141,28 @@ class _BasketPageState extends State<BasketPageMobile> {
   Widget _buildNavButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min, // Устанавливаем минимальный размер для предотвращения растягивания
       children: [
         for (String title in ["Main Page", "Menu", "Reviews", "Delivery"])
-          _buildNavButton(title),
+          Expanded(child: _buildNavButton(title)), // Используем Expanded для автоматического заполнения
       ],
     );
   }
 
   Widget _buildNavButton(String text) {
-    return SizedBox(
-      width: 80,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0.0), // Увеличение горизонтального отступа
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.pink[100],
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          fixedSize: Size(double.infinity, 40), // Устанавливаем фиксированную высоту
         ),
         onPressed: () => _navigateTo(text),
         child: Text(
           text,
+          textAlign: TextAlign.center,
           style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black),
         ),
       ),

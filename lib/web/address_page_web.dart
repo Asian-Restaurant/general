@@ -101,12 +101,12 @@ class _AddressPageWebState extends State<AddressPageWeb> {
                     ElevatedButton(
                       onPressed: _saveAddress,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink[300],
+                        backgroundColor: Colors.pink[100],
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Submit',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
+                        style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black),
                       ),
                     ),
                   ],
@@ -130,7 +130,7 @@ class _AddressPageWebState extends State<AddressPageWeb> {
         ),
         child: Text(
           title,
-          style: const TextStyle(color: Colors.black, fontSize: 14),
+          style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black),
         ),
       ),
     );

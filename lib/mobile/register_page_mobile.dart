@@ -36,20 +36,51 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'e-mail'),
+              decoration: InputDecoration(
+                labelText: 'e-mail',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'phone number'),
+              decoration: InputDecoration(
+                labelText: 'phone number',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'password'),
+              decoration: InputDecoration(
+                labelText: 'password',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
               obscureText: true,
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: _repeatPasswordController,
-              decoration: const InputDecoration(labelText: 'repeat password'),
+              decoration: InputDecoration(
+                labelText: 'repeat password',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
               obscureText: true,
             ),
             const SizedBox(height: 20),
@@ -87,9 +118,13 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
                   MaterialPageRoute(builder: (context) => MainPageMobile()),
                 );
               },
-              child: const Text('Register'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink[200],
+                minimumSize: const Size(double.infinity, 50), // Широкая кнопка
+              ),
+              child: const Text(
+                  'Register',
+                style: TextStyle(color: Colors.black),
               ),
             ),
             const SizedBox(height: 20),
@@ -97,7 +132,7 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Back to Login'),
+              child: const Text('Back to Login', style: TextStyle(color: Colors.pink),),
             ),
           ],
         ),

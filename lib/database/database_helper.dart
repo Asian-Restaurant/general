@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -21,7 +22,14 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'app.db');
+    String path;
+
+    if (kIsWeb) {
+      path = 'app.db'; // Используйте относительный путь для Web
+    } else {
+      path = join(await getDatabasesPath(), 'app.db');
+    }
+
     print('Database path: $path');
 
     return await openDatabase(

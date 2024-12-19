@@ -1,3 +1,4 @@
+import 'package:asian_paradise/mobile/account_page_mobile.dart';
 import 'package:asian_paradise/mobile/address_page_mobile.dart';
 import 'package:asian_paradise/mobile/basket_page_mobile.dart';
 import 'package:asian_paradise/mobile/menu_page_mobile.dart';
@@ -19,7 +20,10 @@ class MainPageMobile extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
+          onPressed: () {
+            // Действие при нажатии на кнопку "Назад"
+            Navigator.pop(context);
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -30,9 +34,15 @@ class MainPageMobile extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person, color: Colors.black),
             onPressed: () {
+              // Предположим, что у вас есть переменная userEmail, содержащая email пользователя
+              String userEmail = 't.shybko04@gmail.com'; // Замените на реальный email пользователя
+
+              // Переход на страницу аккаунта
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AccountPage()),
+                MaterialPageRoute(
+                  builder: (context) => AccountPageMobile(email: userEmail), // Передаем email
+                ),
               );
             },
           ),
@@ -151,17 +161,6 @@ class MainPageMobile extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// Dummy AccountPage class for navigation
-class AccountPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Account")),
-      body: Center(child: Text("User Account Page")),
     );
   }
 }

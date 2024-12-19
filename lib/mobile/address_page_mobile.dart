@@ -104,9 +104,9 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
                         backgroundColor: Colors.pink[300],
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Submit',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
+                        style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black),
                       ),
                     ),
                   ],
@@ -125,12 +125,12 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.pink[300],
+          color: Colors.pink[100],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Text(
           title,
-          style: const TextStyle(color: Colors.black, fontSize: 14),
+          style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black),
         ),
       ),
     );

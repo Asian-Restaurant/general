@@ -1,9 +1,8 @@
-import 'package:asian_paradise/mobile/main_page_mobile.dart';
-import 'package:asian_paradise/mobile/register_page_mobile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:asian_paradise/mobile/main_page_mobile.dart';
+import 'package:asian_paradise/mobile/register_page_mobile.dart';
 import '../database/database_helper.dart';
-
 
 class LoginPageMobile extends StatefulWidget {
   const LoginPageMobile({super.key});
@@ -24,7 +23,7 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
       appBar: AppBar(
         backgroundColor: Colors.pink[100],
         title: Text(
-          'WELCOME TO YOUR LITTLE DREAMWORLD',
+          'ASIAN PARADISE',
           style: GoogleFonts.mali(color: Colors.black, fontSize: 20),
         ),
         centerTitle: true,
@@ -36,17 +35,31 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'e-mail'),
+              decoration: InputDecoration(
+                labelText: 'e-mail',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'password'),
+              decoration: InputDecoration(
+                labelText: 'password',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
               obscureText: true,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // Логика логина
                 String email = _emailController.text;
                 String password = _passwordController.text;
 
@@ -67,9 +80,13 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
                   _showErrorDialog('Invalid email or password.');
                 }
               },
-              child: const Text('Login'),
+              child: const Text(
+                'Login',
+                style: TextStyle(color: Colors.black), // Черный текст
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink[200],
+                minimumSize: Size(double.infinity, 50), // Широкая кнопка
               ),
             ),
             const SizedBox(height: 20),
@@ -80,7 +97,10 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
                   MaterialPageRoute(builder: (context) => const RegisterPageMobile()),
                 );
               },
-              child: const Text('Register'),
+              child: const Text(
+                'Register',
+                style: TextStyle(color: Colors.pink), // Цвет текста кнопки
+              ),
             ),
           ],
         ),

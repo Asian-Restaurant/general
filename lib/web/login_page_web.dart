@@ -1,10 +1,8 @@
-import 'package:asian_paradise/web/main_page_web.dart';
-import 'package:asian_paradise/web/register_page_web.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:asian_paradise/web/main_page_web.dart';
+import 'package:asian_paradise/web/register_page_web.dart';
 import '../database/database_helper.dart';
-
 
 class LoginPageWeb extends StatefulWidget {
   const LoginPageWeb({super.key});
@@ -25,75 +23,86 @@ class _LoginPageWebState extends State<LoginPageWeb> {
       appBar: AppBar(
         backgroundColor: Colors.pink[100],
         title: Text(
-          'WELCOME TO YOUR LITTLE DREAMWORLD',
+          'ASIAN PARADISE',
           style: GoogleFonts.mali(color: Colors.black, fontSize: 20),
         ),
         centerTitle: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'e-mail'),
-                    ),
-                    TextField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(labelText: 'password'),
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Логика логина
-                        String email = _emailController.text;
-                        String password = _passwordController.text;
-
-                        // Проверка на пустые поля
-                        if (email.isEmpty || password.isEmpty) {
-                          _showErrorDialog('Please enter both email and password.');
-                          return;
-                        }
-
-                        bool loginSuccess = await _databaseHelper.loginUser(email, password);
-                        if (loginSuccess) {
-                          // Переход на главную страницу
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => MainPageWeb()),
-                          );
-                        } else {
-                          _showErrorDialog('Invalid email or password.');
-                        }
-                      },
-                      child: const Text('Login'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink[200],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegisterPageWeb()),
-                        );
-                      },
-                      child: const Text('Register'),
-                    ),
-                  ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0), // Больше отступы для веба
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'e-mail',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  ),
+                  filled: true,
+                  fillColor: Colors.pink[50],
                 ),
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 10),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'password',
+                  filled: true,
+                  fillColor: Colors.pink[50],
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  String email = _emailController.text;
+                  String password = _passwordController.text;
+
+                  // Проверка на пустые поля
+                  if (email.isEmpty || password.isEmpty) {
+                    _showErrorDialog('Please enter both email and password.');
+                    return;
+                  }
+
+                  bool loginSuccess = await _databaseHelper.loginUser(email, password);
+                  if (loginSuccess) {
+                    // Переход на главную страницу
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainPageWeb()),
+                    );
+                  } else {
+                    _showErrorDialog('Invalid email or password.');
+                  }
+                },
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.black), // Черный текст
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink[200],
+                  minimumSize: Size(double.infinity, 50), // Широкая кнопка
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegisterPageWeb()), // Веб-страница регистрации
+                  );
+                },
+                child: const Text(
+                  'Register',
+                  style: TextStyle(color: Colors.pink), // Цвет текста кнопки
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
