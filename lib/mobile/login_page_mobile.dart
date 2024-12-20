@@ -1,8 +1,9 @@
+import 'package:asian_paradise/database/firestore_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:asian_paradise/mobile/main_page_mobile.dart';
 import 'package:asian_paradise/mobile/register_page_mobile.dart';
-import '../database/database_helper.dart';
+
 
 class LoginPageMobile extends StatefulWidget {
   const LoginPageMobile({super.key});
@@ -14,7 +15,7 @@ class LoginPageMobile extends StatefulWidget {
 class _LoginPageMobileState extends State<LoginPageMobile> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +70,7 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
                   return;
                 }
 
-                bool loginSuccess = await _databaseHelper.loginUser(email, password);
+                bool loginSuccess = await _firestoreHelper.loginUser(email, password);
                 if (loginSuccess) {
                   // Переход на главную страницу
                   Navigator.pushReplacement(

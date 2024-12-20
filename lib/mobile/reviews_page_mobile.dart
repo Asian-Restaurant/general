@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../AuthService.dart';
-import '../database/database_helper.dart'; // Импортируйте класс базы данных
+import '../database/firestore_helper.dart'; // Импортируйте класс базы данных
 
 class ReviewsPageMobile extends StatefulWidget {
   const ReviewsPageMobile({Key? key}) : super(key: key);
@@ -12,7 +12,7 @@ class ReviewsPageMobile extends StatefulWidget {
 
 class _ReviewsPageMobileState extends State<ReviewsPageMobile> {
   final TextEditingController _reviewController = TextEditingController();
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
   final AuthService _authService = AuthService(); // Сервис авторизации
   List<Map<String, String>> _reviews = [];
 
@@ -24,7 +24,7 @@ class _ReviewsPageMobileState extends State<ReviewsPageMobile> {
 
   void _loadReviews() async {
     int itemId = 1; // Замените на актуальный item_id
-    List<Map<String, dynamic>> reviews = await _databaseHelper.getReviewsByItemId(itemId);
+    List<Map<String, dynamic>> reviews = await _firestoreHelper.getReviewsByItemId(itemId as String);
     setState(() {
       _reviews = reviews.map((review) => {
         "user": "User ${review['user_id']}",  // Приведение к строке
@@ -37,7 +37,7 @@ class _ReviewsPageMobileState extends State<ReviewsPageMobile> {
     if (_authService.isAuthenticated) {
       if (_reviewController.text.isNotEmpty) {
         int itemId = 1; // Замените на актуальный item_id
-        await _databaseHelper.insertReview({
+        await _firestoreHelper.insertReview({
           'item_id': itemId,
           'user_id': _authService.currentUserId, // Получите ID текущего пользователя
           'rating': 5, // Можно добавить функциональность оценки

@@ -33,6 +33,18 @@ class FirestoreHelper {
     return false; // Неверные учетные данные
   }
 
+  // Получение данных пользователя
+  Future<Map<String, dynamic>?> getUser(String email) async {
+    QuerySnapshot snapshot = await _db.collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs[0].data() as Map<String, dynamic>;
+    }
+    return null; // Пользователь не найден
+  }
+
   // Вставка адреса доставки
   Future<void> insertDeliveryAddress(Map<String, dynamic> address) async {
     await _db.collection('delivery_addresses').add(address);
@@ -95,20 +107,57 @@ class FirestoreHelper {
       print('Added new item to cart: ${item.title}');
     }
   }
+
+  // Метод для увеличения количества товара в корзине
+  Future<void> increaseItemQuantity(String cartItemId) async {
+    DocumentSnapshot snapshot = await _db.collection('cart').doc(cartItemId).get();
+    if (snapshot.exists) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      int newQuantity = data['quantity'] + 1;
+      await _db.collection('cart').doc(cartItemId).update({'quantity': newQuantity});
+      print('Increased quantity for item: $cartItemId');
+    }
+  }
+
+  // Метод для уменьшения количества товара в корзине
+  Future<void> decreaseItemQuantity(String cartItemId) async {
+    DocumentSnapshot snapshot = await _db.collection('cart').doc(cartItemId).get();
+    if (snapshot.exists) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      int newQuantity = data['quantity'] - 1;
+      if (newQuantity <= 0) {
+        await _db.collection('cart').doc(cartItemId).delete();
+        print('Removed item from cart: $cartItemId');
+      } else {
+        await _db.collection('cart').doc(cartItemId).update({'quantity': newQuantity});
+        print('Decreased quantity for item: $cartItemId');
+      }
+    }
+  }
 }
 
 class CartItem {
-  final String itemId; // ID товара
-  final String title; // Название товара
-  final String imagePath; // Путь к изображению
-  final double price; // Цена товара
-  int quantity; // Количество товара
+  final String itemId; // Добавлено поле itemId
+  final String title;
+  final String imagePath;
+  final double price;
+  int quantity;
 
   CartItem({
-    required this.itemId,
+    required this.itemId, // Добавлено в конструктор
     required this.title,
     required this.imagePath,
     required this.price,
     this.quantity = 1,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'item_id': itemId, // Добавлено в метод toJson
+      'title': title,
+      'imagePath': imagePath,
+      'price': price,
+      'quantity': quantity,
+    };
+  }
 }

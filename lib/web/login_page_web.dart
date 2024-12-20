@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:asian_paradise/web/main_page_web.dart';
 import 'package:asian_paradise/web/register_page_web.dart';
-import '../database/database_helper.dart';
+import '../database/firestore_helper.dart';
 
 class LoginPageWeb extends StatefulWidget {
   const LoginPageWeb({super.key});
@@ -14,7 +14,7 @@ class LoginPageWeb extends StatefulWidget {
 class _LoginPageWebState extends State<LoginPageWeb> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class _LoginPageWebState extends State<LoginPageWeb> {
                     return;
                   }
 
-                  bool loginSuccess = await _databaseHelper.loginUser(email, password);
+                  bool loginSuccess = await _firestoreHelper.loginUser(email, password);
                   if (loginSuccess) {
                     // Переход на главную страницу
                     Navigator.pushReplacement(

@@ -4,9 +4,8 @@ import 'package:asian_paradise/mobile/basket_page_mobile.dart' as basket;
 import 'package:asian_paradise/mobile/reviews_page_mobile.dart' as reviews;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart';
+import '../database/firestore_helper.dart';
 import '../database/сart.dart';
-
 
 class AddressPageMobile extends StatefulWidget {
   const AddressPageMobile({Key? key}) : super(key: key);
@@ -21,6 +20,7 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
   final TextEditingController _houseController = TextEditingController();
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -153,19 +153,18 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
 
   Future<void> _saveAddress() async {
     final address = {
-      'user_id': 1,
+      'user_id': 1, // Замените на актуальный ID пользователя
       'street': _streetController.text,
       'house': _houseController.text,
       'floor': _floorController.text,
       'apartment': _apartmentController.text,
     };
 
-    final dbHelper = DatabaseHelper();
-    await dbHelper.insertDeliveryAddress(address);
+    await _firestoreHelper.insertDeliveryAddress(address); // Сохраняем адрес в Firestore
     _clearFields();
 
     // Информируем пользователя о том, что адрес отправлен
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sent')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Address submitted')));
   }
 
   void _clearFields() {

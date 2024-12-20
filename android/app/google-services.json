@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "137900097757",
+    "project_id": "asian-paradise-de6ab",
+    "storage_bucket": "asian-paradise-de6ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137900097757:android:49ec674dff92d976411b34",
+        "android_client_info": {
+          "package_name": "com.asipar.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCP5Okng6m2F4BwKGMMR_qA5m1-KdMtvI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

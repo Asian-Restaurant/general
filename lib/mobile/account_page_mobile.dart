@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart';
+import '../database/firestore_helper.dart';
 
 class AccountPageMobile extends StatefulWidget {
   final String email; // Email для поиска пользователя
@@ -14,8 +14,8 @@ class AccountPageMobile extends StatefulWidget {
 class _AccountPageMobileState extends State<AccountPageMobile> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  DatabaseHelper _databaseHelper = DatabaseHelper();
-  Map<String, dynamic>? userData; // Изменен тип на Map<String, dynamic>
+  FirestoreHelper _firestoreHelper = FirestoreHelper();
+  Map<String, dynamic>? userData; // Данные пользователя
 
   @override
   void initState() {
@@ -25,16 +25,9 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
 
   // Загрузка данных пользователя
   Future<void> _loadUserData() async {
-    final db = await _databaseHelper.database;
-    final List<Map<String, dynamic>> users = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [widget.email],
-    );
-
-    if (users.isNotEmpty) {
+    userData = await _firestoreHelper.getUser(widget.email);
+    if (userData != null) {
       setState(() {
-        userData = users[0];
         _nameController.text = userData!['name'] ?? '';
         _phoneController.text = userData!['phone'] ?? '';
       });
@@ -107,7 +100,7 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
                 String name = _nameController.text;
                 String phone = _phoneController.text;
 
-                // Обновление данных в базе данных
+                // Обновление данных в Firestore
                 _updateUserData(name, phone);
 
                 // Показываем сообщение об успешном сохранении
@@ -130,14 +123,12 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
     );
   }
 
-  // Обновление данных пользователя в базе данных
+  // Обновление данных пользователя в Firestore
   Future<void> _updateUserData(String name, String phone) async {
-    final db = await _databaseHelper.database;
-    await db.update(
-      'users',
-      {'name': name, 'phone': phone},
-      where: 'email = ?',
-      whereArgs: [widget.email],
-    );
+    await _firestoreHelper.insertUser({
+      'email': widget.email,
+      'name': name,
+      'phone': phone,
+    });
   }
 }

@@ -13,6 +13,13 @@ class MainPageWeb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, String>> foodItems = [
+      {"imagePath": "assets/sushi.jpg", "description": "Try classic of Japan"},
+      {"imagePath": "assets/indian.jpg", "description": "Would you like to fall in love with India?"},
+      {"imagePath": "assets/thai.jpg", "description": "Say Hello to Thailand!"},
+      {"imagePath": "assets/korean.jpg", "description": "Must have Korean set"},
+    ];
+
     return Scaffold(
       backgroundColor: Colors.pink[50],
       appBar: AppBar(
@@ -35,7 +42,7 @@ class MainPageWeb extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AccountPageWeb()), // Переход на страницу аккаунта
+                MaterialPageRoute(builder: (context) => AccountPageWeb()),
               );
             },
           ),
@@ -52,7 +59,7 @@ class MainPageWeb extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(32.0), // Увеличенные отступы для веба
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -84,18 +91,25 @@ class MainPageWeb extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 40),
-              // Категории еды
-              Column(
-                children: [
-                  _buildFoodCard("assets/sushi.jpg", "Try classic of Japan"),
-                  const SizedBox(height: 32),
-                  _buildFoodCard("assets/indian.jpg", "Would you like to fall in love with India?"),
-                  const SizedBox(height: 32),
-                  _buildFoodCard("assets/thai.jpg", "Say Hello to Thailand!"),
-                  const SizedBox(height: 32),
-                  _buildFoodCard("assets/korean.jpg", "Must have Korean set"),
-                ],
+              // Сетка категорий еды
+              GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // Две карточки в ряд
+                  crossAxisSpacing: 16, // Расстояние между карточками по горизонтали
+                  mainAxisSpacing: 16, // Расстояние между карточками по вертикали
+                  childAspectRatio: 1.5, // Соотношение сторон карточки
+                ),
+                itemCount: foodItems.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(), // Запрет прокрутки внутри GridView
+                itemBuilder: (context, index) {
+                  return _buildFoodCard(
+                    foodItems[index]["imagePath"]!,
+                    foodItems[index]["description"]!,
+                  );
+                },
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -109,7 +123,7 @@ class MainPageWeb extends StatelessWidget {
       style: TextButton.styleFrom(
         backgroundColor: Colors.pink[100],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Увеличенные отступы
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       ),
       child: Text(
         title,
@@ -136,7 +150,7 @@ class MainPageWeb extends StatelessWidget {
             child: Image.asset(
               imagePath,
               fit: BoxFit.cover,
-              width: 400, // Фиксированная ширина для веба
+              width: 300, // Увеличенная ширина для веба
               height: 200,
             ),
           ),

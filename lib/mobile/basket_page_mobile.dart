@@ -4,7 +4,7 @@ import 'package:asian_paradise/mobile/address_page_mobile.dart' as address;
 import 'package:asian_paradise/mobile/reviews_page_mobile.dart' as reviews;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart' as db;
+import '../database/firestore_helper.dart';
 import '../database/сart.dart' as cart;
 
 
@@ -19,7 +19,7 @@ class BasketPageMobile extends StatefulWidget {
 
 class _BasketPageState extends State<BasketPageMobile> {
   final TextEditingController _commentController = TextEditingController();
-  final db.DatabaseHelper _dbHelper = db.DatabaseHelper();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
   String? _sendMessage;
 
   @override
@@ -35,22 +35,17 @@ class _BasketPageState extends State<BasketPageMobile> {
   }
 
   void _loadCart() async {
-    const userId = 1; // Замените на фактический ID пользователя
-    final loadedItems = await _dbHelper.loadCart(userId);
+    const userId = '1'; // Замените на фактический ID пользователя
+    final loadedItems = await _firestoreHelper.loadCart(userId);
     setState(() {
       widget.cartData.items.clear();
-      widget.cartData.items.addAll(loadedItems.map((item) => cart.CartItem(
-        title: item.title,
-        imagePath: item.imagePath,
-        price: item.price,
-        quantity: item.quantity,
-      )));
+      widget.cartData.items.addAll(loadedItems as Iterable<cart.CartItem>);
     });
   }
 
   void _saveCart() async {
-    const userId = 1; // Замените на фактический ID пользователя
-    await _dbHelper.saveCart(widget.cartData.items.cast<db.CartItem>(), userId);
+    const userId = '1'; // Замените на фактический ID пользователя
+    await _firestoreHelper.saveCart(widget.cartData.items.cast<CartItem>(), userId);
   }
 
   void _sendComment() {
@@ -141,23 +136,23 @@ class _BasketPageState extends State<BasketPageMobile> {
   Widget _buildNavButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.min, // Устанавливаем минимальный размер для предотвращения растягивания
+      mainAxisSize: MainAxisSize.min,
       children: [
         for (String title in ["Main Page", "Menu", "Reviews", "Delivery"])
-          Expanded(child: _buildNavButton(title)), // Используем Expanded для автоматического заполнения
+          Expanded(child: _buildNavButton(title)),
       ],
     );
   }
 
   Widget _buildNavButton(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0.0), // Увеличение горизонтального отступа
+      padding: const EdgeInsets.symmetric(horizontal: 0.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.pink[100],
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          fixedSize: Size(double.infinity, 40), // Устанавливаем фиксированную высоту
+          fixedSize: Size(double.infinity, 40),
         ),
         onPressed: () => _navigateTo(text),
         child: Text(

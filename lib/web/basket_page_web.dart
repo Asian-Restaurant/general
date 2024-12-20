@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart' as db;
+import '../database/firestore_helper.dart' as db;
 import '../database/сart.dart' as cart;
 import '../web/reviews_page_web.dart' as reviews;
 import '../web/address_page_web.dart' as address;
@@ -19,7 +19,7 @@ class BasketPageWeb extends StatefulWidget {
 
 class _BasketPageState extends State<BasketPageWeb> {
   final TextEditingController _commentController = TextEditingController();
-  final db.DatabaseHelper _dbHelper = db.DatabaseHelper();
+  final db.FirestoreHelper _dbHelper = db.FirestoreHelper();
   String? _sendMessage;
 
   @override
@@ -36,7 +36,7 @@ class _BasketPageState extends State<BasketPageWeb> {
 
   void _loadCart() async {
     const userId = 1; // Replace with the actual user ID
-    final loadedItems = await _dbHelper.loadCart(userId);
+    final loadedItems = await _dbHelper.loadCart(userId as String);
     setState(() {
       widget.cartData.items.clear(); // Clear current items
       widget.cartData.items.addAll(loadedItems.map((item) => cart.CartItem(
@@ -50,7 +50,7 @@ class _BasketPageState extends State<BasketPageWeb> {
 
   void _saveCart() async {
     const userId = 1; // Replace with the actual user ID
-    await _dbHelper.saveCart(widget.cartData.items.cast<db.CartItem>(), userId);
+    await _dbHelper.saveCart(widget.cartData.items.cast<db.CartItem>(), userId as String);
   }
 
   void _sendComment() {

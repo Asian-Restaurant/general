@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../database/сart.dart';
 
-
 class MenuPageWeb extends StatelessWidget {
   const MenuPageWeb({Key? key}) : super(key: key);
 
@@ -191,13 +190,20 @@ class MenuPageWeb extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
-          child: Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-            width: 200, // Ширина для веб-версии
-            height: 150, // Высота для веб-версии
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.pink[300],
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          padding: const EdgeInsets.all(8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11.0),
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              width: 220, // Увеличенная ширина
+              height: 170, // Увеличенная высота
+            ),
           ),
         ),
         const SizedBox(height: 8),

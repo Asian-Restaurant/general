@@ -1,7 +1,7 @@
 import 'package:asian_paradise/web/main_page_web.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart';
+import '../database/firestore_helper.dart';
 
 class RegisterPageWeb extends StatefulWidget {
   const RegisterPageWeb({super.key});
@@ -15,7 +15,7 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +106,7 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
                   }
 
                   // Вставка пользователя в базу данных
-                  await _databaseHelper.insertUser({
+                  await _firestoreHelper.insertUser({
                     'name': phone, // Здесь можно заменить на имя, если оно будет добавлено
                     'email': email,
                     'password': password,
@@ -120,12 +120,12 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // Черный цвет кнопки
+                  backgroundColor: Colors.pink[200], // Черный цвет кнопки
                   minimumSize: const Size(double.infinity, 50), // Широкая кнопка
                 ),
                 child: const Text(
                   'Register',
-                  style: TextStyle(color: Colors.white), // Белый текст
+                  style: TextStyle(color: Colors.black), // Белый текст
                 ),
               ),
               const SizedBox(height: 20),

@@ -4,7 +4,7 @@ import 'package:asian_paradise/web/basket_page_web.dart' as basket;
 import 'package:asian_paradise/web/reviews_page_web.dart' as reviews;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart';
+import '../database/firestore_helper.dart';
 import '../database/сart.dart';
 
 
@@ -101,7 +101,7 @@ class _AddressPageWebState extends State<AddressPageWeb> {
                     ElevatedButton(
                       onPressed: _saveAddress,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink[100],
+                        backgroundColor: Colors.pink[300],
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                       child: Text(
@@ -125,7 +125,7 @@ class _AddressPageWebState extends State<AddressPageWeb> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.pink[300],
+          color: Colors.pink[100],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Text(
@@ -160,7 +160,7 @@ class _AddressPageWebState extends State<AddressPageWeb> {
       'apartment': _apartmentController.text,
     };
 
-    final dbHelper = DatabaseHelper();
+    final dbHelper = FirestoreHelper();
     await dbHelper.insertDeliveryAddress(address);
     _clearFields();
 

@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'mobile/main_page_mobile.dart' as mobile;
 import 'web/main_page_web.dart' as web;
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-    databaseFactory = databaseFactoryFfi;
+  // Инициализация Firebase с параметрами из firebase_options.dart
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MyApp());
 }

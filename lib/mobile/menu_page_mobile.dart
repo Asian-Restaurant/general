@@ -31,35 +31,41 @@ class MenuPageMobile extends StatelessWidget {
           style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            // Вертикальное расположение кнопок навигации
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Боковая панель с вертикальным расположением кнопок
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildNavButton(context, "Main Page", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageMobile()));
                 }),
+                const SizedBox(height: 8),
                 _buildNavButton(context, "Basket", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageMobile(cartData: cart)));
                 }),
+                const SizedBox(height: 8),
                 _buildNavButton(context, "Reviews", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageMobile()));
                 }),
+                const SizedBox(height: 8),
                 _buildNavButton(context, "Delivery", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageMobile()));
                 }),
               ],
             ),
-            const SizedBox(height: 16),
-            // Сетка с изображениями
-            Expanded(
+          ),
+          // Основное содержимое
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: _buildFoodGrid(context, cart),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

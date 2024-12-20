@@ -1,7 +1,7 @@
 import 'package:asian_paradise/mobile/main_page_mobile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/database_helper.dart';
+import '../database/firestore_helper.dart';
 
 class RegisterPageMobile extends StatefulWidget {
   const RegisterPageMobile({super.key});
@@ -15,7 +15,7 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final FirestoreHelper _firestoreHelper = FirestoreHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,7 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
                 }
 
                 // Вставка пользователя в базу данных
-                await _databaseHelper.insertUser({
+                await _firestoreHelper.insertUser({
                   'name': phone, // Здесь можно заменить на имя, если оно будет добавлено
                   'email': email,
                   'password': password,
