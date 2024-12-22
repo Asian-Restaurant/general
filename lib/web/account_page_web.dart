@@ -30,7 +30,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
     if (email == null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPageWeb()),
+        MaterialPageRoute(builder: (context) => const LoginPageWeb()),
       );
     } else {
       // Передаем email из локального хранилища в _loadUserData
@@ -61,7 +61,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
     await prefs.clear();
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => LoginPageWeb()),
+      MaterialPageRoute(builder: (context) => const LoginPageWeb()),
     );
   }
 
@@ -77,7 +77,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
           ),
           centerTitle: true,
         ),
-        body: Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -91,7 +91,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.black),
+            icon: const Icon(Icons.logout, color: Colors.black),
             onPressed: _logout,
           ),
         ],
@@ -118,6 +118,18 @@ class _AccountPageWebState extends State<AccountPageWeb> {
                 "Phone: ${userData?['phone'] ?? 'N/A'}",
                 style: GoogleFonts.mali(fontSize: 24),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40), // Добавим отступ перед кнопкой
+              ElevatedButton(
+                onPressed: _logout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink[200],
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ],
           ),
