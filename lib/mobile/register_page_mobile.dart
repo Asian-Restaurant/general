@@ -1,7 +1,7 @@
 import 'package:asian_paradise/mobile/main_page_mobile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/firestore_helper.dart';
+import '../api/api_service.dart';
 
 class RegisterPageMobile extends StatefulWidget {
   const RegisterPageMobile({super.key});
@@ -11,11 +11,12 @@ class RegisterPageMobile extends StatefulWidget {
 }
 
 class _RegisterPageMobileState extends State<RegisterPageMobile> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();
-  final FirestoreHelper _firestoreHelper = FirestoreHelper();
+  final ApiService _apiService = ApiService('http://127.0.0.1:5000');
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +36,11 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _emailController,
+              controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'e-mail',
+                labelText: 'Name',
                 border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  borderSide: BorderSide(color: Colors.pink),
                 ),
                 filled: true,
                 fillColor: Colors.pink[50],
@@ -49,9 +50,21 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
             TextField(
               controller: _phoneController,
               decoration: InputDecoration(
-                labelText: 'phone number',
+                labelText: 'Phone Number',
                 border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  borderSide: BorderSide(color: Colors.pink),
+                ),
+                filled: true,
+                fillColor: Colors.pink[50],
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: 'E-mail',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.pink),
                 ),
                 filled: true,
                 fillColor: Colors.pink[50],
@@ -61,9 +74,9 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(
-                labelText: 'password',
+                labelText: 'Password',
                 border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  borderSide: BorderSide(color: Colors.pink),
                 ),
                 filled: true,
                 fillColor: Colors.pink[50],
@@ -74,9 +87,9 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
             TextField(
               controller: _repeatPasswordController,
               decoration: InputDecoration(
-                labelText: 'repeat password',
+                labelText: 'Repeat Password',
                 border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                  borderSide: BorderSide(color: Colors.pink),
                 ),
                 filled: true,
                 fillColor: Colors.pink[50],
@@ -86,14 +99,14 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // Логика регистрации
-                String email = _emailController.text;
+                String name = _nameController.text;
                 String phone = _phoneController.text;
+                String email = _emailController.text;
                 String password = _passwordController.text;
                 String repeatPassword = _repeatPasswordController.text;
 
                 // Проверка на пустые поля
-                if (email.isEmpty || phone.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
+                if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
                   _showErrorDialog('Please fill in all fields.');
                   return;
                 }
@@ -104,26 +117,30 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
                   return;
                 }
 
-                // Вставка пользователя в базу данных
-                await _firestoreHelper.insertUser({
-                  'name': phone, // Здесь можно заменить на имя, если оно будет добавлено
-                  'email': email,
-                  'password': password,
-                  'phone': phone,
-                });
+                // Вставка пользователя в базу данных через API
+                try {
+                  await _apiService.registerUser({
+                    'name': name,
+                    'email': email,
+                    'password': password,
+                    'phone': phone,
+                  });
 
-                // Переход на главную страницу
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainPageMobile()),
-                );
+                  // Переход на главную страницу
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainPageMobile()),
+                  );
+                } catch (e) {
+                  _showErrorDialog('Registration failed: ${e.toString()}');
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink[200],
-                minimumSize: const Size(double.infinity, 50), // Широкая кнопка
+                minimumSize: const Size(double.infinity, 50),
               ),
               child: const Text(
-                  'Register',
+                'Register',
                 style: TextStyle(color: Colors.black),
               ),
             ),
@@ -132,7 +149,7 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Back to Login', style: TextStyle(color: Colors.pink),),
+              child: const Text('Back to Login', style: TextStyle(color: Colors.pink)),
             ),
           ],
         ),

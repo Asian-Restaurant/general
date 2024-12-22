@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../database/firestore_helper.dart';
 
 class AccountPageMobile extends StatefulWidget {
-  final String email; // Email для поиска пользователя
+  final String email;
 
   AccountPageMobile({Key? key, required this.email}) : super(key: key);
 

@@ -7,15 +7,12 @@ class AuthService with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   String? get currentUserId => _currentUserId;
 
-  // Метод для имитации входа пользователя
   Future<void> login(String userId) async {
-    // Здесь можно добавить логику проверки учетных данных
     _isAuthenticated = true;
     _currentUserId = userId;
-    notifyListeners();
+    notifyListeners(); // Уведомление провайдеров об изменении состояния
   }
 
-  // Метод для выхода пользователя
   Future<void> logout() async {
     _isAuthenticated = false;
     _currentUserId = null;

@@ -42,7 +42,7 @@ class MainPageWeb extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AccountPageWeb()),
+                MaterialPageRoute(builder: (context) => AccountPageWeb(email: '',)),
               );
             },
           ),

@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'AuthService.dart';
 import 'firebase_options.dart';
 import 'mobile/main_page_mobile.dart' as mobile;
 import 'web/main_page_web.dart' as web;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Инициализация Firebase с параметрами из firebase_options.dart
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -21,11 +21,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Asian Paradise',
-      home: (kIsWeb
-          ? web.MainPageWeb()
-          : mobile.MainPageMobile()),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthService>(
+          create: (_) => AuthService(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Asian Paradise',
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => kIsWeb ? web.MainPageWeb() : mobile.MainPageMobile(),
+        },
+      ),
     );
   }
 }

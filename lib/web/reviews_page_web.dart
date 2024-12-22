@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../AuthService.dart';
-import '../database/firestore_helper.dart';
+import '../api/api_service.dart'; // Импортируйте ваш API сервис
 
 class ReviewsPageWeb extends StatefulWidget {
   const ReviewsPageWeb({super.key});
@@ -13,7 +13,7 @@ class ReviewsPageWeb extends StatefulWidget {
 
 class _ReviewsPageWebState extends State<ReviewsPageWeb> {
   final TextEditingController _reviewController = TextEditingController();
-  final FirestoreHelper _firestoreHelper = FirestoreHelper();
+  final ApiService _apiService = ApiService('http://127.0.0.1:5000'); // URL вашего API
   List<Map<String, String>> _reviews = [];
 
   @override
@@ -23,34 +23,50 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
   }
 
   void _loadReviews() async {
-    int itemId = 1; // Замените на актуальный item_id
-    List<Map<String, dynamic>> reviews = await _firestoreHelper.getReviewsByItemId(itemId as String);
-    setState(() {
-      _reviews = reviews.map((review) => {
-        "user": "User ${review['user_id']}",  // Приведение к строке
-        "review": review['comment'] as String, // Явно указываем, что это строка
-      }).toList().cast<Map<String, String>>(); // Приведение всего списка к нужному типу
-    });
+    try {
+      List reviews = await _apiService.getAllReviews();
+      print('Reviews loaded: $reviews');
+      setState(() {
+        _reviews = reviews
+            .map((review) => {
+          "user": "User ${review['user_id']}",
+          "review": review['comment'] as String,
+        })
+            .toList()
+            .cast<Map<String, String>>();
+      });
+    } catch (e) {
+      print('Error loading reviews: ${e.toString()}');
+      _showErrorDialog('Error loading reviews: ${e.toString()}');
+    }
   }
+
 
   void _addReview() async {
     final authService = Provider.of<AuthService>(context, listen: false);
 
     if (authService.isAuthenticated) {
       if (_reviewController.text.isNotEmpty) {
-        int itemId = 1; // Замените на актуальный item_id
-        await _firestoreHelper.insertReview({
-          'item_id': itemId,
-          'user_id': authService.currentUserId, // Получите ID текущего пользователя
-          'rating': 5, // Можно добавить функциональность оценки
-          'comment': _reviewController.text,
-        });
+        print("Attempting to add review: ${_reviewController.text}");
+        try {
+          await _apiService.addReview({
+            'user_id': authService.currentUserId, // Получите ID текущего пользователя
+            'comment': _reviewController.text,
+          });
 
-        // Обновляем список отзывов
-        _loadReviews();
-        _reviewController.clear(); // Очистка текстового поля
+          print("Review added successfully");
+          // Обновляем список отзывов
+          _loadReviews();
+          _reviewController.clear(); // Очистка текстового поля
+        } catch (e) {
+          print("Error adding review: $e");
+          _showErrorDialog('Failed to add review: ${e.toString()}');
+        }
+      } else {
+        print("Review text is empty");
       }
     } else {
+      print("User is not authenticated");
       _showAuthDialog(); // Показать диалог авторизации
     }
   }
@@ -60,30 +76,59 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Authentication Required'),
-          content: const Text('You need to be logged in to leave a review.'),
-          actions: [
+            title: const Text('Authentication Required'),
+            content: const Text('You need to be logged in to leave a review.'),
+            actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pushNamed(context, '/login'); // Переход на страницу логина
-              },
-              child: const Text('Login'),
-            ),
-          ],
-        );
-      },
+            onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('OK'),
+        ),
+        TextButton(
+        onPressed: () {
+        Navigator.of(context).pop();
+        Navigator.pushNamed(context, '/login'); // Переход на страницу логина
+        },
+        child: const Text('Login')),
+      ],
     );
-  }
+  },
+  );
+}
+
+void _showErrorDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
+    if (!authService.isAuthenticated) {
+      // Если пользователь не залогинен, перенаправить на страницу логина
+      Future.microtask(() {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -123,6 +168,7 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
     );
   }
 
+
   Widget _buildReviewInput() {
     return TextField(
       controller: _reviewController,
@@ -137,31 +183,34 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
         fillColor: Colors.pink[50],
         contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       ),
-    );
-  }
-
-  Widget _buildReviewList() {
-    return ListView.builder(
-      itemCount: _reviews.length,
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _reviews[index]["user"]!,
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(_reviews[index]["review"]!),
-              ],
-            ),
-          ),
-        );
+      onSubmitted: (value) {
+        _addReview(); // Вызываем метод отправки отзыва при нажатии Enter
       },
     );
   }
+
+Widget _buildReviewList() {
+  return ListView.builder(
+    itemCount: _reviews.length,
+    itemBuilder: (context, index) {
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _reviews[index]["user"]!,
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(_reviews[index]["review"]!),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 }

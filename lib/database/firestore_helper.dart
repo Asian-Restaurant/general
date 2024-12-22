@@ -7,10 +7,28 @@ class FirestoreHelper {
 
   // Вставка пользователя с хешированием пароля
   Future<void> insertUser(Map<String, dynamic> user) async {
+    if (await _isEmailExists(user['email'])) {
+      throw Exception('Email already exists');
+    }
+
     String hashedPassword = _hashPassword(user['password']);
     user['password'] = hashedPassword; // Хешируем пароль
-    await _db.collection('users').add(user);
-    print('User added: $user');
+
+    try {
+      await _db.collection('users').add(user);
+      print('User added: $user');
+    } catch (e) {
+      print('Error adding user: $e');
+      throw Exception('Failed to add user');
+    }
+  }
+
+  // Проверка на существование email
+  Future<bool> _isEmailExists(String email) async {
+    QuerySnapshot snapshot = await _db.collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+    return snapshot.docs.isNotEmpty;
   }
 
   // Хеширование пароля
@@ -47,15 +65,25 @@ class FirestoreHelper {
 
   // Вставка адреса доставки
   Future<void> insertDeliveryAddress(Map<String, dynamic> address) async {
-    await _db.collection('delivery_addresses').add(address);
-    print('Delivery address added: $address');
+    try {
+      await _db.collection('delivery_addresses').add(address);
+      print('Delivery address added: $address');
+    } catch (e) {
+      print('Error adding delivery address: $e');
+      throw Exception('Failed to add delivery address');
+    }
   }
 
   // Вставка отзыва
   Future<void> insertReview(Map<String, dynamic> review) async {
     review['review_date'] = DateTime.now().toIso8601String(); // Устанавливаем текущую дату
-    await _db.collection('reviews').add(review);
-    print('Review added: $review');
+    try {
+      await _db.collection('reviews').add(review);
+      print('Review added: $review');
+    } catch (e) {
+      print('Error adding review: $e');
+      throw Exception('Failed to add review');
+    }
   }
 
   // Получение отзывов по item_id
@@ -87,24 +115,29 @@ class FirestoreHelper {
 
   // Сохранение данных в корзину
   Future<void> saveCart(List<CartItem> cartItems, String userId) async {
-    // Очистка старых данных для пользователя
-    await _db.collection('cart').where('user_id', isEqualTo: userId).get().then((snapshot) {
-      for (var doc in snapshot.docs) {
-        doc.reference.delete();
-      }
-    });
-
-    // Сохранение новых товаров в корзину
-    for (var item in cartItems) {
-      await _db.collection('cart').add({
-        'user_id': userId,
-        'item_id': item.itemId,
-        'quantity': item.quantity,
-        'total_price': item.price * item.quantity,
-        'title': item.title,
-        'imagePath': item.imagePath,
+    try {
+      // Очистка старых данных для пользователя
+      await _db.collection('cart').where('user_id', isEqualTo: userId).get().then((snapshot) {
+        for (var doc in snapshot.docs) {
+          doc.reference.delete();
+        }
       });
-      print('Added new item to cart: ${item.title}');
+
+      // Сохранение новых товаров в корзину
+      for (var item in cartItems) {
+        await _db.collection('cart').add({
+          'user_id': userId,
+          'item_id': item.itemId,
+          'quantity': item.quantity,
+          'total_price': item.price * item.quantity,
+          'title': item.title,
+          'imagePath': item.imagePath,
+        });
+        print('Added new item to cart: ${item.title}');
+      }
+    } catch (e) {
+      print('Error saving cart: $e');
+      throw Exception('Failed to save cart');
     }
   }
 

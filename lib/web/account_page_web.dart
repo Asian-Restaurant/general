@@ -1,74 +1,126 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../api/api_service.dart';
+import 'login_page_web.dart';
 
-class AccountPageWeb extends StatelessWidget {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+class AccountPageWeb extends StatefulWidget {
+  final String email;
+
+  AccountPageWeb({Key? key, required this.email}) : super(key: key);
+
+  @override
+  _AccountPageWebState createState() => _AccountPageWebState();
+}
+
+class _AccountPageWebState extends State<AccountPageWeb> {
+  final ApiService _apiService = ApiService('http://127.0.0.1:5000');
+  Map<String, dynamic>? userData;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('email');
+    if (email == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPageWeb()),
+      );
+    } else {
+      // Передаем email из локального хранилища в _loadUserData
+      await _loadUserData(email);
+    }
+  }
+
+  Future<void> _loadUserData(String email) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      userData = await _apiService.getUser(email); // Используем переданный email
+    } catch (e) {
+      print('Error loading user data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load user data: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPageWeb()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.pink[100],
+          title: Text(
+            "Account",
+            style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
+          ),
+          centerTitle: true,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.pink[100],
         title: Text(
           "Account",
-          style: GoogleFonts.mali(color: Colors.black, fontSize: 20),
+          style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout, color: Colors.black),
+            onPressed: _logout,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
-                ),
-                filled: true,
-                fillColor: Colors.pink[50],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Welcome, ${userData?['name'] ?? 'User'}",
+                style: GoogleFonts.mali(fontSize: 28, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _phoneController,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.pink), // Розовая рамка
-                ),
-                filled: true,
-                fillColor: Colors.pink[50],
+              const SizedBox(height: 20),
+              Text(
+                "Email: ${userData?['email'] ?? 'N/A'}",
+                style: GoogleFonts.mali(fontSize: 24),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Логика сохранения данных пользователя
-                String name = _nameController.text;
-                String phone = _phoneController.text;
-
-                // Здесь можно добавить логику для сохранения данных
-                // Например, вы можете вызвать метод для сохранения данных в БД
-
-                // Показываем сообщение об успешном сохранении
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Account updated!')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pink[200], // Черный цвет кнопки
-                minimumSize: const Size(double.infinity, 50), // Широкая кнопка
+              const SizedBox(height: 10),
+              Text(
+                "Phone: ${userData?['phone'] ?? 'N/A'}",
+                style: GoogleFonts.mali(fontSize: 24),
+                textAlign: TextAlign.center,
               ),
-              child: const Text(
-                'Save',
-                style: TextStyle(color: Colors.white), // Белый текст
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

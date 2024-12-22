@@ -1,7 +1,7 @@
 import 'package:asian_paradise/web/main_page_web.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/firestore_helper.dart';
+import '../api/api_service.dart';
 
 class RegisterPageWeb extends StatefulWidget {
   const RegisterPageWeb({super.key});
@@ -11,11 +11,15 @@ class RegisterPageWeb extends StatefulWidget {
 }
 
 class _RegisterPageWebState extends State<RegisterPageWeb> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();
-  final FirestoreHelper _firestoreHelper = FirestoreHelper();
+  final ApiService _apiService = ApiService('http://127.0.0.1:5000');
+
+  bool _obscurePassword = true;
+  bool _obscureRepeatPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +35,16 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(32.0), // Увеличенные отступы для веба
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
-                controller: _emailController,
+                controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'e-mail',
+                  labelText: 'Name',
                   border: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                    borderSide: BorderSide(color: Colors.pink),
                   ),
                   filled: true,
                   fillColor: Colors.pink[50],
@@ -50,51 +54,87 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
               TextField(
                 controller: _phoneController,
                 decoration: InputDecoration(
-                  labelText: 'phone number',
+                  labelText: 'Phone Number',
                   border: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                    borderSide: BorderSide(color: Colors.pink),
                   ),
                   filled: true,
                   fillColor: Colors.pink[50],
                 ),
               ),
               const SizedBox(height: 10),
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'E-mail',
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink),
+                  ),
+                  filled: true,
+                  fillColor: Colors.pink[50],
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Поле для ввода пароля
               TextField(
                 controller: _passwordController,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
-                  labelText: 'password',
+                  labelText: 'Password',
                   border: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                    borderSide: BorderSide(color: Colors.pink),
                   ),
                   filled: true,
                   fillColor: Colors.pink[50],
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.pink,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
               ),
               const SizedBox(height: 10),
+              // Поле для повторного ввода пароля
               TextField(
                 controller: _repeatPasswordController,
+                obscureText: _obscureRepeatPassword,
                 decoration: InputDecoration(
-                  labelText: 'repeat password',
+                  labelText: 'Repeat Password',
                   border: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink), // Розовая рамка
+                    borderSide: BorderSide(color: Colors.pink),
                   ),
                   filled: true,
                   fillColor: Colors.pink[50],
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureRepeatPassword ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.pink,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureRepeatPassword = !_obscureRepeatPassword;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  // Логика регистрации
-                  String email = _emailController.text;
+                  String name = _nameController.text;
                   String phone = _phoneController.text;
+                  String email = _emailController.text;
                   String password = _passwordController.text;
                   String repeatPassword = _repeatPasswordController.text;
 
                   // Проверка на пустые поля
-                  if (email.isEmpty || phone.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
+                  if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
                     _showErrorDialog('Please fill in all fields.');
                     return;
                   }
@@ -105,27 +145,31 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
                     return;
                   }
 
-                  // Вставка пользователя в базу данных
-                  await _firestoreHelper.insertUser({
-                    'name': phone, // Здесь можно заменить на имя, если оно будет добавлено
-                    'email': email,
-                    'password': password,
-                    'phone': phone,
-                  });
+                  // Вставка пользователя в базу данных через API
+                  try {
+                    await _apiService.registerUser({
+                      'name': name,
+                      'email': email,
+                      'password': password,
+                      'phone': phone,
+                    });
 
-                  // Переход на главную страницу
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainPageWeb()),
-                  );
+                    // Переход на главную страницу
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainPageWeb()),
+                    );
+                  } catch (e) {
+                    _showErrorDialog('Registration failed: ${e.toString()}');
+                  }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink[200], // Черный цвет кнопки
-                  minimumSize: const Size(double.infinity, 50), // Широкая кнопка
+                  backgroundColor: Colors.pink[200],
+                  minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text(
                   'Register',
-                  style: TextStyle(color: Colors.black), // Белый текст
+                  style: TextStyle(color: Colors.black),
                 ),
               ),
               const SizedBox(height: 20),
