@@ -39,7 +39,7 @@ class _ReviewsPageMobileState extends State<ReviewsPageMobile> {
         int itemId = 1; // Замените на актуальный item_id
         await _firestoreHelper.insertReview({
           'item_id': itemId,
-          'user_id': _authService.currentUserId, // Получите ID текущего пользователя
+          //'user_id': _authService.currentUserId, // Получите ID текущего пользователя
           'rating': 5, // Можно добавить функциональность оценки
           'comment': _reviewController.text,
         });

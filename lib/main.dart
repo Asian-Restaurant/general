@@ -6,6 +6,10 @@ import 'AuthService.dart';
 import 'firebase_options.dart';
 import 'mobile/main_page_mobile.dart' as mobile;
 import 'web/main_page_web.dart' as web;
+import 'mobile/login_page_mobile.dart' as mobile_login;
+import 'web/login_page_web.dart' as web_login;
+import 'mobile/reviews_page_mobile.dart' as mobile_reviews;
+import 'web/reviews_page_web.dart' as web_reviews;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthService>(
-          create: (_) => AuthService(),
+          create: (_) => AuthService()..initialize(), // Инициализация состояния аутентификации
         ),
       ],
       child: MaterialApp(
@@ -33,6 +37,8 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => kIsWeb ? web.MainPageWeb() : mobile.MainPageMobile(),
+          '/login': (context) => kIsWeb ? const web_login.LoginPageWeb() : const mobile_login.LoginPageMobile(),
+          '/reviews': (context) => kIsWeb ? const web_reviews.ReviewsPageWeb() : const mobile_reviews.ReviewsPageMobile(),
         },
       ),
     );

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/firestore_helper.dart' as db;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../database/сart.dart' as cart;
 import '../web/reviews_page_web.dart' as reviews;
 import '../web/address_page_web.dart' as address;
 import '../web/main_page_web.dart';
 import '../web/menu_page_web.dart';
-
 
 class BasketPageWeb extends StatefulWidget {
   final cart.Cart cartData;
@@ -19,7 +19,6 @@ class BasketPageWeb extends StatefulWidget {
 
 class _BasketPageState extends State<BasketPageWeb> {
   final TextEditingController _commentController = TextEditingController();
-  final db.FirestoreHelper _dbHelper = db.FirestoreHelper();
   String? _sendMessage;
 
   @override
@@ -34,25 +33,55 @@ class _BasketPageState extends State<BasketPageWeb> {
     super.dispose();
   }
 
+  // Load cart from the server
   void _loadCart() async {
-    const userId = 1; // Replace with the actual user ID
-    final loadedItems = await _dbHelper.loadCart(userId as String);
-    setState(() {
-      widget.cartData.items.clear(); // Clear current items
-      widget.cartData.items.addAll(loadedItems.map((item) => cart.CartItem(
-        title: item.title,
-        imagePath: item.imagePath,
-        price: item.price,
-        quantity: item.quantity,
-      )));
-    });
+    const userId = '1'; // Replace with the actual user ID
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:5000/cart/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> items = json.decode(response.body);
+      setState(() {
+        widget.cartData.items.clear();
+        widget.cartData.items.addAll(items.map((item) => cart.CartItem(
+          title: item['title'],
+          imagePath: item['imagePath'],
+          price: item['price'],
+          quantity: item['quantity'],
+        )));
+      });
+    } else {
+      print('Failed to load cart');
+    }
   }
 
+  // Save cart to the server
   void _saveCart() async {
-    const userId = 1; // Replace with the actual user ID
-    await _dbHelper.saveCart(widget.cartData.items.cast<db.CartItem>(), userId as String);
+    const userId = '1'; // Replace with the actual user ID
+    final List<Map<String, dynamic>> cartItems = widget.cartData.items.map((item) {
+      return {
+        'title': item.title,
+        'imagePath': item.imagePath,
+        'price': item.price,
+        'quantity': item.quantity,
+      };
+    }).toList();
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:5000/save_cart'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'user_id': userId, 'items': cartItems}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Cart saved');
+    } else {
+      print('Failed to save cart');
+    }
   }
 
+  // Send comment
   void _sendComment() {
     setState(() {
       _sendMessage = "Sent!";
@@ -65,12 +94,14 @@ class _BasketPageState extends State<BasketPageWeb> {
     });
   }
 
+  // Increase item quantity
   void _increaseItemQuantity(int index) {
     setState(() {
       widget.cartData.items[index].quantity++;
     });
   }
 
+  // Decrease item quantity
   void _decreaseItemQuantity(int index) {
     setState(() {
       if (widget.cartData.items[index].quantity > 1) {
@@ -81,6 +112,7 @@ class _BasketPageState extends State<BasketPageWeb> {
     });
   }
 
+  // Navigate to different pages
   void _navigateTo(String page) {
     _saveCart();
 
@@ -133,6 +165,7 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
+  // Navigation buttons
   Widget _buildNavButtons(BuildContext context, bool isLargeScreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,6 +176,7 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
+  // Navigation button
   Widget _buildNavButton(BuildContext context, String text, bool isLargeScreen) {
     return SizedBox(
       width: isLargeScreen ? 120 : 80,
@@ -161,6 +195,7 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
+  // Build order list widget
   Widget _buildOrderList() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -234,6 +269,7 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
+  // Build total sum widget
   Widget _buildTotalSum() {
     final totalSum = widget.cartData.items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
     return Container(
@@ -259,6 +295,7 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
+  // Build comments section widget
   Widget _buildCommentsSection() {
     return Container(
       padding: const EdgeInsets.all(16),

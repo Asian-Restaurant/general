@@ -67,13 +67,21 @@ class ApiService {
 
   // Метод для получения всех отзывов
   Future<List<dynamic>> getAllReviews() async {
-    final response = await http.get(Uri.parse('$baseUrl/reviews'));
+    try {
+      final uri = Uri.parse('$baseUrl/reviews');
+      final response = await http.get(uri);
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      print('Failed to load reviews: ${response.body}');
-      throw Exception('Failed to load reviews');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load reviews');
+      }
+    } catch (e) {
+      print('Error fetching reviews: $e');
+      throw Exception('Error fetching reviews: $e');
     }
   }
 

@@ -1,21 +1,49 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService with ChangeNotifier {
   bool _isAuthenticated = false;
-  String? _currentUserId;
+  String? _currentUserEmail;
+  String? _currentUserName;
 
   bool get isAuthenticated => _isAuthenticated;
-  String? get currentUserId => _currentUserId;
+  String? get currentUserEmail => _currentUserEmail;
+  String? get currentUserName => _currentUserName;
 
-  Future<void> login(String userId) async {
-    _isAuthenticated = true;
-    _currentUserId = userId;
-    notifyListeners(); // Уведомление провайдеров об изменении состояния
+  // Метод инициализации состояния аутентификации
+  Future<void> initialize() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _isAuthenticated = prefs.getBool('isAuthenticated') ?? false;
+    _currentUserEmail = prefs.getString('currentUserEmail');
+    _currentUserName = prefs.getString('currentUserName');
+    notifyListeners();
   }
 
+  // Метод для логина
+  Future<void> login(String email, String name) async {
+    _isAuthenticated = true;
+    _currentUserEmail = email;
+    _currentUserName = name;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isAuthenticated', true);
+    await prefs.setString('currentUserEmail', email);
+    await prefs.setString('currentUserName', name);
+
+    notifyListeners();
+  }
+
+  // Метод для логаута
   Future<void> logout() async {
     _isAuthenticated = false;
-    _currentUserId = null;
+    _currentUserEmail = null;
+    _currentUserName = null;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isAuthenticated');
+    await prefs.remove('currentUserEmail');
+    await prefs.remove('currentUserName');
+
     notifyListeners();
   }
 }
