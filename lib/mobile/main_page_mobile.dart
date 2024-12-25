@@ -77,13 +77,13 @@ class MainPageMobile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton(context, "Menu", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageMobile()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MenuPageMobile()));
                   }),
                   _buildNavButton(context, "Basket", () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageMobile(cartData: cart)));
                   }),
                   _buildNavButton(context, "Reviews", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageMobile()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewsPageMobile()));
                   }),
                   _buildNavButton(context, "Delivery", () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageMobile()));

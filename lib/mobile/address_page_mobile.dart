@@ -1,14 +1,15 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../database/сart.dart';
 import 'package:asian_paradise/mobile/main_page_mobile.dart';
 import 'package:asian_paradise/mobile/menu_page_mobile.dart';
 import 'package:asian_paradise/mobile/basket_page_mobile.dart' as basket;
 import 'package:asian_paradise/mobile/reviews_page_mobile.dart' as reviews;
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../database/firestore_helper.dart';
-import '../database/сart.dart';
 
 class AddressPageMobile extends StatefulWidget {
-  const AddressPageMobile({Key? key}) : super(key: key);
+  const AddressPageMobile({super.key});
 
   @override
   _AddressPageMobileState createState() => _AddressPageMobileState();
@@ -20,24 +21,20 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
   final TextEditingController _houseController = TextEditingController();
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
-  final FirestoreHelper _firestoreHelper = FirestoreHelper();
+
+  final String baseUrl = 'http://192.168.0.101:5000'; // Updated API base URL for mobile
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         centerTitle: true,
         title: Text(
           'ASIAN PARADISE',
-          style: GoogleFonts.mali(color: Colors.black, fontSize: 20),
+          style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
         ),
       ),
       body: Padding(
@@ -46,7 +43,7 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Кнопки навигации
+              // Navigation buttons for mobile layout
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -54,7 +51,7 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageMobile()));
                   }),
                   _buildNavButton(context, "Menu", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageMobile()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MenuPageMobile()));
                   }),
                   _buildNavButton(context, "Basket", () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => basket.BasketPageMobile(cartData: cart)));
@@ -66,7 +63,7 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
               ),
               const SizedBox(height: 20),
 
-              // Форма адреса
+              // Address form for mobile
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
@@ -153,18 +150,29 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
 
   Future<void> _saveAddress() async {
     final address = {
-      'user_id': 1, // Замените на актуальный ID пользователя
       'street': _streetController.text,
       'house': _houseController.text,
       'floor': _floorController.text,
       'apartment': _apartmentController.text,
     };
 
-    await _firestoreHelper.insertDeliveryAddress(address); // Сохраняем адрес в Firestore
-    _clearFields();
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/delivery'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(address),
+      );
 
-    // Информируем пользователя о том, что адрес отправлен
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Address submitted')));
+      if (response.statusCode == 201) {
+        _clearFields();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Address sent successfully')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to send address')));
+      }
+    } catch (e) {
+      print('Error sending address: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error sending address')));
+    }
   }
 
   void _clearFields() {

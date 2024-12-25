@@ -2,23 +2,37 @@ class CartItem {
   final String title;
   final String imagePath;
   final double price;
-  int quantity; // Свойство для количества
+  int quantity; // This should be mutable
+  String? comment;
 
   CartItem({
     required this.title,
     required this.imagePath,
     required this.price,
-    this.quantity = 1, // Количество по умолчанию
+    this.quantity = 1,
+    this.comment,
   });
 
-  // Метод для преобразования объекта в JSON
+  // Method to convert object to JSON
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'imagePath': imagePath,
       'price': price,
       'quantity': quantity,
+      'comment': comment ?? '', // Provide a default empty string for comment
     };
+  }
+
+  // Method to create a CartItem from JSON
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      title: json['title'] as String,
+      imagePath: json['imagePath'] as String,
+      price: (json['price'] as num).toDouble(), // Ensure price is parsed as double
+      quantity: json['quantity'] ?? 1,
+      comment: json['comment'] as String?, // Allow for nullable comment
+    );
   }
 }
 

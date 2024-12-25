@@ -1,12 +1,12 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../database/сart.dart';
 import 'package:asian_paradise/web/main_page_web.dart';
 import 'package:asian_paradise/web/menu_page_web.dart';
 import 'package:asian_paradise/web/basket_page_web.dart' as basket;
 import 'package:asian_paradise/web/reviews_page_web.dart' as reviews;
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../database/firestore_helper.dart';
-import '../database/сart.dart';
-
 
 class AddressPageWeb extends StatefulWidget {
   const AddressPageWeb({super.key});
@@ -22,18 +22,15 @@ class _AddressPageWebState extends State<AddressPageWeb> {
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
 
+  final String baseUrl = 'http://127.0.0.1:5000'; // API базовый URL
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         centerTitle: true,
         title: Text(
           'ASIAN PARADISE',
@@ -153,19 +150,29 @@ class _AddressPageWebState extends State<AddressPageWeb> {
 
   Future<void> _saveAddress() async {
     final address = {
-      'user_id': 1,
       'street': _streetController.text,
       'house': _houseController.text,
       'floor': _floorController.text,
       'apartment': _apartmentController.text,
     };
 
-    final dbHelper = FirestoreHelper();
-    await dbHelper.insertDeliveryAddress(address);
-    _clearFields();
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/delivery'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(address),
+      );
 
-    // Информируем пользователя о том, что адрес отправлен
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sent')));
+      if (response.statusCode == 201) {
+        _clearFields();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Address sent successfully')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to send address')));
+      }
+    } catch (e) {
+      print('Error sending address: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error sending address')));
+    }
   }
 
   void _clearFields() {

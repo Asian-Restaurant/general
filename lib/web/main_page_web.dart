@@ -25,12 +25,6 @@ class MainPageWeb extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.pink[50],
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
         centerTitle: true,
         title: Text(
           'ASIAN PARADISE',
@@ -77,7 +71,7 @@ class MainPageWeb extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton(context, "Menu", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageWeb()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MenuPageWeb()));
                   }),
                   _buildNavButton(context, "Basket", () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageWeb(cartData: cart)));

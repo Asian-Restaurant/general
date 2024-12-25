@@ -1,7 +1,6 @@
+import 'package:asian_paradise/api/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../database/сart.dart' as cart;
 import '../web/reviews_page_web.dart' as reviews;
 import '../web/address_page_web.dart' as address;
@@ -20,99 +19,88 @@ class BasketPageWeb extends StatefulWidget {
 class _BasketPageState extends State<BasketPageWeb> {
   final TextEditingController _commentController = TextEditingController();
   String? _sendMessage;
+  final ApiService apiService = ApiService('http://127.0.0.1:5000');
 
   @override
   void initState() {
     super.initState();
-    _loadCart(); // Load cart on initialization
+    _loadCart();
   }
 
   @override
   void dispose() {
-    _saveCart(); // Save cart on exit
+    _saveCart();
     super.dispose();
   }
 
-  // Load cart from the server
   void _loadCart() async {
-    const userId = '1'; // Replace with the actual user ID
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:5000/cart/$userId'),
-    );
+    final response = await apiService.getCart();
 
-    if (response.statusCode == 200) {
-      final List<dynamic> items = json.decode(response.body);
+    if (response != null) {
       setState(() {
         widget.cartData.items.clear();
-        widget.cartData.items.addAll(items.map((item) => cart.CartItem(
-          title: item['title'],
-          imagePath: item['imagePath'],
-          price: item['price'],
-          quantity: item['quantity'],
-        )));
+        widget.cartData.items.addAll(
+          response.map((item) => cart.CartItem.fromJson(item)).toList(),
+        );
       });
     } else {
       print('Failed to load cart');
     }
   }
 
-  // Save cart to the server
   void _saveCart() async {
-    const userId = '1'; // Replace with the actual user ID
-    final List<Map<String, dynamic>> cartItems = widget.cartData.items.map((item) {
+    final cartItems = widget.cartData.items.map((item) {
       return {
-        'title': item.title,
-        'imagePath': item.imagePath,
+        'name_dish': item.title,
         'price': item.price,
         'quantity': item.quantity,
+        'comment': item.comment ?? '',
       };
     }).toList();
 
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:5000/save_cart'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'user_id': userId, 'items': cartItems}),
-    );
+    final success = await apiService.saveCart(cartItems);
 
-    if (response.statusCode == 200) {
-      print('Cart saved');
-    } else {
+    if (!success) {
       print('Failed to save cart');
     }
   }
 
-  // Send comment
-  void _sendComment() {
+  void _sendComment() async {
+    final success = await apiService.sendComment(_commentController.text);
+
     setState(() {
-      _sendMessage = "Sent!";
-      _commentController.clear(); // Clear input field
+      _sendMessage = success ? "Sent!" : "Failed to send comment";
+      _commentController.clear();
     });
+
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        _sendMessage = null; // Remove message after 2 seconds
+        _sendMessage = null;
       });
     });
   }
 
-  // Increase item quantity
+  // Увеличение количества товара
   void _increaseItemQuantity(int index) {
     setState(() {
       widget.cartData.items[index].quantity++;
     });
+    _saveCart(); // Сохранение изменений в API
   }
 
-  // Decrease item quantity
+// Уменьшение количества товара
   void _decreaseItemQuantity(int index) {
     setState(() {
       if (widget.cartData.items[index].quantity > 1) {
         widget.cartData.items[index].quantity--;
       } else {
-        widget.cartData.items.removeAt(index);
+        widget.cartData.items.removeAt(index); // Удаление товара из корзины
       }
     });
+    _saveCart(); // Сохранение изменений в API
   }
 
-  // Navigate to different pages
+
   void _navigateTo(String page) {
     _saveCart();
 
@@ -121,7 +109,7 @@ class _BasketPageState extends State<BasketPageWeb> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageWeb()));
         break;
       case "Menu":
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageWeb()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => MenuPageWeb()));
         break;
       case "Reviews":
         Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPageWeb()));
@@ -165,7 +153,6 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
-  // Navigation buttons
   Widget _buildNavButtons(BuildContext context, bool isLargeScreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -176,7 +163,6 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
-  // Navigation button
   Widget _buildNavButton(BuildContext context, String text, bool isLargeScreen) {
     return SizedBox(
       width: isLargeScreen ? 120 : 80,
@@ -195,7 +181,6 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
-  // Build order list widget
   Widget _buildOrderList() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -239,18 +224,18 @@ class _BasketPageState extends State<BasketPageWeb> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.remove),
-                              onPressed: () => _decreaseItemQuantity(index),
+                              onPressed: () => _decreaseItemQuantity(index), // Привязка логики к кнопке
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0),
                               child: Text(
-                                "${item.quantity}",
+                                "${item.quantity}", // Отображение текущего количества
                                 style: GoogleFonts.mali(fontSize: 16),
                               ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.add),
-                              onPressed: () => _increaseItemQuantity(index),
+                              onPressed: () => _increaseItemQuantity(index), // Привязка логики к кнопке
                             ),
                           ],
                         ),
@@ -263,13 +248,12 @@ class _BasketPageState extends State<BasketPageWeb> {
                   );
                 },
               ),
-            ),
+            )
         ],
       ),
     );
   }
 
-  // Build total sum widget
   Widget _buildTotalSum() {
     final totalSum = widget.cartData.items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
     return Container(
@@ -295,7 +279,6 @@ class _BasketPageState extends State<BasketPageWeb> {
     );
   }
 
-  // Build comments section widget
   Widget _buildCommentsSection() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -328,16 +311,16 @@ class _BasketPageState extends State<BasketPageWeb> {
             ),
             onPressed: _sendComment,
             child: Text(
-              "Send",
-              style: GoogleFonts.mali(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              "Send comment",
+              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           if (_sendMessage != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _sendMessage!,
-                style: const TextStyle(color: Colors.black54, fontSize: 16),
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.green),
               ),
             ),
         ],

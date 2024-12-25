@@ -5,10 +5,13 @@ import 'package:asian_paradise/web/main_page_web.dart';
 import 'package:asian_paradise/web/reviews_page_web.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../api/api_service.dart';
 import '../database/сart.dart';
 
 class MenuPageWeb extends StatelessWidget {
-  const MenuPageWeb({Key? key}) : super(key: key);
+  MenuPageWeb({Key? key}) : super(key: key);
+
+  final ApiService _apiService = ApiService('http://127.0.0.1:5000');
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +20,9 @@ class MenuPageWeb extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         centerTitle: true,
         title: Text(
           'ASIAN PARADISE',
@@ -33,119 +31,75 @@ class MenuPageWeb extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            // Вертикальное расположение кнопок навигации
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: FutureBuilder<List<dynamic>>(
+          future: _apiService.getMenu(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No menu items found.'));
+            }
+
+            final menuItems = snapshot.data!;
+            // Группируем блюда по категориям
+            final Map<String, List<Map<String, dynamic>>> groupedDishes = {};
+
+            for (var item in menuItems) {
+              final category = item['category'];
+              if (!groupedDishes.containsKey(category)) {
+                groupedDishes[category] = [];
+              }
+              groupedDishes[category]!.add({
+                'dish_name': item['dish_name'],
+                'image_url': item['image_url'],
+              });
+            }
+
+            return Row(
               children: [
-                _buildNavButton(context, "Main Page", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageWeb()));
-                }),
-                const SizedBox(height: 8),
-                _buildNavButton(context, "Basket", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageWeb(cartData: cart)));
-                }),
-                const SizedBox(height: 8),
-                _buildNavButton(context, "Reviews", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageWeb()));
-                }),
-                const SizedBox(height: 8),
-                _buildNavButton(context, "Delivery", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageWeb()));
-                }),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildNavButton(context, "Main Page", () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageWeb()));
+                    }),
+                    const SizedBox(height: 8),
+                    _buildNavButton(context, "Basket", () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageWeb(cartData: cart)));
+                    }),
+                    const SizedBox(height: 8),
+                    _buildNavButton(context, "Reviews", () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageWeb()));
+                    }),
+                    const SizedBox(height: 8),
+                    _buildNavButton(context, "Delivery", () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const AddressPageWeb()));
+                    }),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildFoodGrid(groupedDishes, context, cart),
+                ),
               ],
-            ),
-            const SizedBox(width: 16),
-            // Сетка с изображениями
-            Expanded(
-              child: _buildFoodGrid(context, cart), // Передайте cart сюда
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
   // Метод для создания сетки с изображениями
-  Widget _buildFoodGrid(BuildContext context, Cart cart) {
-    final foodCategories = {
-      "Korean": [
-        {
-          "image": "assets/bibimbap.jpg",
-          "title": "Bibimbap",
-          "description": "A delicious Korean dish made with rice and vegetables.",
-          "weight": 250.0,
-          "price": 15.99,
-        },
-        {
-          "image": "assets/kimbap.jpg",
-          "title": "Kimbap",
-          "description": "Korean sushi rolls filled with vegetables and meat.",
-          "weight": 300.0,
-          "price": 12.50,
-        },
-        {
-          "image": "assets/tteokbokki.jpg",
-          "title": "Tteokbokki",
-          "description": "Spicy rice cakes, a popular Korean street food.",
-          "weight": 200.0,
-          "price": 10.00,
-        },
-      ],
-      "Japanese": [
-        {
-          "image": "assets/onigiri.jpg",
-          "title": "Onigiri",
-          "description": "Japanese rice ball with various fillings.",
-          "weight": 200.0,
-          "price": 10.00,
-        },
-        {
-          "image": "assets/ramen.jpg",
-          "title": "Ramen",
-          "description": "Noodle soup with meat and vegetables.",
-          "weight": 400.0,
-          "price": 18.00,
-        },
-        {
-          "image": "assets/sushi.jpg",
-          "title": "Sushi",
-          "description": "Traditional Japanese dish with vinegared rice and seafood.",
-          "weight": 250.0,
-          "price": 14.00,
-        },
-      ],
-      "Chinese": [
-        {
-          "image": "assets/jiaozi.jpg",
-          "title": "Jiaozi",
-          "description": "Chinese dumplings filled with meat and vegetables.",
-          "weight": 300.0,
-          "price": 14.50,
-        },
-        {
-          "image": "assets/dim sum.jpg",
-          "title": "Dim Sum",
-          "description": "Steamed buns with various fillings.",
-          "weight": 250.0,
-          "price": 16.00,
-        },
-        {
-          "image": "assets/char siu.jpg",
-          "title": "Char Siu",
-          "description": "Chinese BBQ pork with a sweet glaze.",
-          "weight": 300.0,
-          "price": 17.00,
-        },
-      ],
-    };
-
+  Widget _buildFoodGrid(Map<String, List<Map<String, dynamic>>> groupedDishes, BuildContext context, Cart cart) {
     return ListView.builder(
-      itemCount: foodCategories.keys.length,
+      itemCount: groupedDishes.keys.length,
       itemBuilder: (context, categoryIndex) {
-        String category = foodCategories.keys.elementAt(categoryIndex);
+        final category = groupedDishes.keys.elementAt(categoryIndex);
+        final dishes = groupedDishes[category]!;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -158,24 +112,24 @@ class MenuPageWeb extends StatelessWidget {
             ),
             GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // Три элемента в строке для веб-версии
-                childAspectRatio: 0.7,
+                crossAxisCount: 3,
+                childAspectRatio: 0.6, // Уменьшите это значение для увеличения высоты
                 crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
+                mainAxisSpacing: 8.0, // Уменьшите отступ между карточками
               ),
-              itemCount: foodCategories[category]!.length,
+              itemCount: dishes.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, itemIndex) {
-                final foodItem = foodCategories[category]![itemIndex];
+              itemBuilder: (context, dishIndex) {
+                final dish = dishes[dishIndex];
                 return _buildFoodCard(
-                  foodItem["image"] as String,
-                  foodItem["title"] as String,
-                  foodItem["description"] as String,
-                  foodItem["weight"] as double,
-                  foodItem["price"] as double,
+                  dish['image_url'] ?? '',
+                  dish['dish_name'] ?? 'Unknown Title',
+                  '', // Описание можно добавить позже
+                  0.0, // Вес можно добавить позже
+                  0.0, // Цена можно добавить позже
                   context,
-                  cart, // Передайте cart в карточку
+                  cart,
                 );
               },
             ),
@@ -185,7 +139,7 @@ class MenuPageWeb extends StatelessWidget {
     );
   }
 
-  // Метод для создания карточки с едой
+// Метод для создания карточки с едой
   Widget _buildFoodCard(String imagePath, String title, String description, double weight, double price, BuildContext context, Cart cart) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -198,28 +152,31 @@ class MenuPageWeb extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(11.0),
-            child: Image.asset(
+            child: imagePath.isNotEmpty
+                ? Image.network(
               imagePath,
               fit: BoxFit.cover,
-              width: 220, // Увеличенная ширина
-              height: 170, // Увеличенная высота
+              width: 220,
+              height: 200, // Увеличьте высоту изображения
+            )
+                : Container(
+              width: 220,
+              height: 200, // Соответствующая высота для серого контейнера
+              color: Colors.grey,
+              child: const Center(child: Text('No Image')),
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 8), // Оставьте расстояние между изображением и кнопкой
         TextButton(
           onPressed: () {
-            // Переход на страницу блюда с передачей корзины
+            // Переход на страницу блюда
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => DishPageWeb(
-                  title: title,
-                  imagePath: imagePath,
-                  description: description,
-                  weight: weight,
-                  price: price,
-                  cart: cart, // Передайте корзину
+                  dishName: title,
+                  cart: cart,
                 ),
               ),
             );

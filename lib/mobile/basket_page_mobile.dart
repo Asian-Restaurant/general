@@ -35,7 +35,7 @@ class _BasketPageState extends State<BasketPageMobile> {
   }
 
   void _loadCart() async {
-    const userId = '1'; // Замените на фактический ID пользователя
+    const userId = '1';
     final loadedItems = await _firestoreHelper.loadCart(userId);
     setState(() {
       widget.cartData.items.clear();
@@ -83,7 +83,7 @@ class _BasketPageState extends State<BasketPageMobile> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageMobile()));
         break;
       case "Menu":
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuPageMobile()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => MenuPageMobile()));
         break;
       case "Reviews":
         Navigator.push(context, MaterialPageRoute(builder: (context) => const reviews.ReviewsPageMobile()));

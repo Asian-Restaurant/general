@@ -7,7 +7,7 @@ class ApiService {
 
   ApiService(this.baseUrl);
 
-  // Метод для регистрации пользователя
+  // Method for user registration
   Future<Map<String, dynamic>> registerUser(Map<String, dynamic> userData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register'),
@@ -16,14 +16,14 @@ class ApiService {
     );
 
     if (response.statusCode == 201) {
-      return json.decode(response.body); // Возвращаем данные пользователя
+      return json.decode(response.body); // Return user data
     } else {
       print('Registration failed: ${response.body}');
       throw Exception('Failed to register user');
     }
   }
 
-  // Метод для логина пользователя
+  // Method for user login
   Future<Map<String, dynamic>> loginUser(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
@@ -32,28 +32,63 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body); // Возвращаем весь объект пользователя
+      return json.decode(response.body); // Return user object
     } else {
       print('Login failed: ${response.body}');
       throw Exception('Invalid credentials');
     }
   }
 
-  // Метод для добавления элемента в корзину
-  Future<void> addToCart(String userId, Map<String, dynamic> itemData) async {
+  // Method to add an item to the cart
+  Future<void> addToCart(Map<String, dynamic> itemData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/add_to_cart'),
+      Uri.parse('$baseUrl/cart'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({'user_id': userId, 'item_data': itemData}),
+      body: json.encode({
+        'name_dish': itemData['name_dish'],
+        'price': itemData['price'],
+        'quantity': itemData['quantity'],
+        'comment': itemData['comment'] ?? 'Want to bring home',
+      }),
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 201) {
       print('Failed to add item to cart: ${response.body}');
       throw Exception('Failed to add item to cart');
     }
   }
 
-  // Метод для получения меню
+  // Method to retrieve the cart
+  Future<List<dynamic>> getCart() async {
+    final response = await http.get(Uri.parse('$baseUrl/cart'));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body); // Return the cart items
+    } else {
+      print('Failed to load cart: ${response.body}');
+      throw Exception('Failed to load cart');
+    }
+  }
+
+  // Method to save cart data
+  Future<bool> saveCart(List<Map<String, dynamic>> cartItems) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/save_cart'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'items': cartItems,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true; // Cart saved successfully
+    } else {
+      print('Failed to save cart: ${response.body}');
+      return false;
+    }
+  }
+
+  // Method to retrieve the menu
   Future<List<dynamic>> getMenu() async {
     final response = await http.get(Uri.parse('$baseUrl/menu'));
 
@@ -65,7 +100,61 @@ class ApiService {
     }
   }
 
-  // Метод для получения всех отзывов
+  // Method to retrieve dish information
+  Future<Map<String, dynamic>> getDish(String dishName) async {
+    String requestUrl = '$baseUrl/dish?dish_name=${Uri.encodeComponent(dishName)}';
+    print("Requesting URL: $requestUrl"); // Log the request URL
+
+    try {
+      final response = await http.get(Uri.parse(requestUrl), headers: {'Content-Type': 'application/json'});
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        print('Failed to fetch dish: ${response.body}');
+        throw Exception('Dish not found');
+      }
+    } catch (e) {
+      print('Error in ApiService.getDish: $e');
+      throw Exception('Failed to fetch dish data');
+    }
+  }
+
+  // Static method to get cart data
+  Future<List<dynamic>> getCartData() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/cart'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body); // Return the cart items
+    } else {
+      print('Failed to load cart: ${response.body}');
+      throw Exception('Failed to load cart');
+    }
+  }
+
+  // Method to send a comment
+  Future<bool> sendComment(String comment) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/comments'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'comment': comment}),
+    );
+
+    if (response.statusCode == 200) {
+      return true; // Comment sent successfully
+    } else {
+      print('Failed to send comment: ${response.body}');
+      return false;
+    }
+  }
+
+  // Method to retrieve all reviews
   Future<List<dynamic>> getAllReviews() async {
     try {
       final uri = Uri.parse('$baseUrl/reviews');
@@ -85,7 +174,7 @@ class ApiService {
     }
   }
 
-  // Метод для добавления отзыва
+  // Method to add a review
   Future<void> addReview(Map<String, dynamic> reviewData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/reviews'),
@@ -99,7 +188,7 @@ class ApiService {
     }
   }
 
-  // Метод для отправки адреса доставки
+  // Method to submit a delivery address
   Future<void> submitDeliveryAddress(Map<String, dynamic> addressData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/delivery'),
@@ -113,10 +202,10 @@ class ApiService {
     }
   }
 
-  // Метод для получения данных пользователя по email
+  // Method to get user data by email
   Future<Map<String, dynamic>> getUser(String email) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/user?email=$email'), // Параметр email передается в URL
+      Uri.parse('$baseUrl/user?email=${Uri.encodeComponent(email)}'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -127,7 +216,7 @@ class ApiService {
     }
   }
 
-  // Метод для обновления данных пользователя
+  // Method to update user data
   Future<void> updateUser(Map<String, dynamic> userData) async {
     final response = await http.put(
       Uri.parse('$baseUrl/user'),
@@ -141,7 +230,7 @@ class ApiService {
     }
   }
 
-  // Сохранение данных пользователя локально
+  // Save user data locally
   Future<void> saveUserDataLocally(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', userData['email']);
@@ -149,7 +238,7 @@ class ApiService {
     await prefs.setString('phone', userData['phone']);
   }
 
-  // Загрузка данных пользователя из локального хранилища
+  // Load user data from local storage
   Future<Map<String, dynamic>?> loadUserDataLocally() async {
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('email');
@@ -163,7 +252,7 @@ class ApiService {
     return null;
   }
 
-  // Удаление данных пользователя из локального хранилища
+  // Clear user data from local storage
   Future<void> clearUserDataLocally() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
