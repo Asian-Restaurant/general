@@ -22,7 +22,7 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
 
-  final String baseUrl = 'http://192.168.0.101:5000'; // Updated API base URL for mobile
+  final String baseUrl = 'http://192.168.0.101:5000';
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,6 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Navigation buttons for mobile layout
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -63,7 +62,6 @@ class _AddressPageMobileState extends State<AddressPageMobile> {
               ),
               const SizedBox(height: 20),
 
-              // Address form for mobile
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(

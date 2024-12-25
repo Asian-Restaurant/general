@@ -1,12 +1,11 @@
-import 'package:asian_paradise/mobile/main_page_mobile.dart';
-import 'package:asian_paradise/mobile/menu_page_mobile.dart';
-import 'package:asian_paradise/mobile/address_page_mobile.dart' as address;
-import 'package:asian_paradise/mobile/reviews_page_mobile.dart' as reviews;
+import 'package:asian_paradise/api/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../database/firestore_helper.dart';
 import '../database/сart.dart' as cart;
-
+import '../mobile/reviews_page_mobile.dart' as reviews;
+import '../mobile/address_page_mobile.dart' as address;
+import '../mobile/main_page_mobile.dart';
+import '../mobile/menu_page_mobile.dart';
 
 class BasketPageMobile extends StatefulWidget {
   final cart.Cart cartData;
@@ -19,8 +18,8 @@ class BasketPageMobile extends StatefulWidget {
 
 class _BasketPageState extends State<BasketPageMobile> {
   final TextEditingController _commentController = TextEditingController();
-  final FirestoreHelper _firestoreHelper = FirestoreHelper();
   String? _sendMessage;
+  final ApiService apiService = ApiService('http://192.168.0.101:5000');
 
   @override
   void initState() {
@@ -35,24 +34,45 @@ class _BasketPageState extends State<BasketPageMobile> {
   }
 
   void _loadCart() async {
-    const userId = '1';
-    final loadedItems = await _firestoreHelper.loadCart(userId);
-    setState(() {
-      widget.cartData.items.clear();
-      widget.cartData.items.addAll(loadedItems as Iterable<cart.CartItem>);
-    });
+    final response = await apiService.getCart();
+
+    if (response != null) {
+      setState(() {
+        widget.cartData.items.clear();
+        widget.cartData.items.addAll(
+          response.map((item) => cart.CartItem.fromJson(item)).toList(),
+        );
+      });
+    } else {
+      print('Failed to load cart');
+    }
   }
 
   void _saveCart() async {
-    const userId = '1'; // Замените на фактический ID пользователя
-    await _firestoreHelper.saveCart(widget.cartData.items.cast<CartItem>(), userId);
+    final cartItems = widget.cartData.items.map((item) {
+      return {
+        'name_dish': item.title,
+        'price': item.price,
+        'quantity': item.quantity,
+        'comment': item.comment ?? '',
+      };
+    }).toList();
+
+    final success = await apiService.saveCart(cartItems);
+
+    if (!success) {
+      print('Failed to save cart');
+    }
   }
 
-  void _sendComment() {
+  void _sendComment() async {
+    final success = await apiService.sendComment(_commentController.text);
+
     setState(() {
-      _sendMessage = "Sent!";
+      _sendMessage = success ? "Sent!" : "Failed to send comment";
       _commentController.clear();
     });
+
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _sendMessage = null;
@@ -64,6 +84,7 @@ class _BasketPageState extends State<BasketPageMobile> {
     setState(() {
       widget.cartData.items[index].quantity++;
     });
+    _saveCart();
   }
 
   void _decreaseItemQuantity(int index) {
@@ -74,10 +95,12 @@ class _BasketPageState extends State<BasketPageMobile> {
         widget.cartData.items.removeAt(index);
       }
     });
+    _saveCart();
   }
 
   void _navigateTo(String page) {
     _saveCart();
+
     switch (page) {
       case "Main Page":
         Navigator.push(context, MaterialPageRoute(builder: (context) => MainPageMobile()));
@@ -96,12 +119,11 @@ class _BasketPageState extends State<BasketPageMobile> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildScaffold();
-  }
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
 
-  Widget _buildScaffold() {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'ASIAN PARADISE',
           style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
@@ -109,56 +131,49 @@ class _BasketPageState extends State<BasketPageMobile> {
         centerTitle: true,
         backgroundColor: Colors.pink[100],
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildNavButtons(),
-            const SizedBox(height: 16),
-            _buildOrderList(),
-            const SizedBox(height: 16),
-            _buildTotalSum(),
-            const SizedBox(height: 16),
-            _buildCommentsSection(),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildNavButtons(context, isLargeScreen),
+              const SizedBox(height: 16),
+              _buildOrderList(),
+              const SizedBox(height: 16),
+              _buildTotalSum(),
+              const SizedBox(height: 16),
+              _buildCommentsSection(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildNavButtons() {
+  Widget _buildNavButtons(BuildContext context, bool isLargeScreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.min,
       children: [
         for (String title in ["Main Page", "Menu", "Reviews", "Delivery"])
-          Expanded(child: _buildNavButton(title)),
+          _buildNavButton(context, title, isLargeScreen),
       ],
     );
   }
 
-  Widget _buildNavButton(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+  Widget _buildNavButton(BuildContext context, String text, bool isLargeScreen) {
+    return SizedBox(
+      width: isLargeScreen ? 120 : 80,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.pink[100],
-          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          fixedSize: Size(double.infinity, 40),
+          padding: EdgeInsets.symmetric(vertical: isLargeScreen ? 8 : 4),
         ),
         onPressed: () => _navigateTo(text),
         child: Text(
           text,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black),
+          style: GoogleFonts.poppins(fontSize: isLargeScreen ? 18 : 13, fontWeight: FontWeight.w600, color: Colors.black),
         ),
       ),
     );
@@ -186,62 +201,54 @@ class _BasketPageState extends State<BasketPageMobile> {
               style: GoogleFonts.mali(fontSize: 16, fontStyle: FontStyle.italic),
             )
           else
-            _buildOrderListView(),
+            SizedBox(
+              height: 200,
+              child: ListView.builder(
+                itemCount: widget.cartData.items.length,
+                itemBuilder: (context, index) {
+                  final item = widget.cartData.items[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: GoogleFonts.mali(fontSize: 16),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () => _decreaseItemQuantity(index),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                "${item.quantity}",
+                                style: GoogleFonts.mali(fontSize: 16),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => _increaseItemQuantity(index),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          "${(item.price * item.quantity).toStringAsFixed(2)} BYN",
+                          style: GoogleFonts.mali(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            )
         ],
       ),
-    );
-  }
-
-  Widget _buildOrderListView() {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        itemCount: widget.cartData.items.length,
-        itemBuilder: (context, index) {
-          final item = widget.cartData.items[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    item.title,
-                    style: GoogleFonts.mali(fontSize: 16),
-                  ),
-                ),
-                _buildQuantityControls(index),
-                Text(
-                  "${(item.price * item.quantity).toStringAsFixed(2)} BYN",
-                  style: GoogleFonts.mali(fontSize: 16),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildQuantityControls(int index) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.remove),
-          onPressed: () => _decreaseItemQuantity(index),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            "${widget.cartData.items[index].quantity}",
-            style: GoogleFonts.mali(fontSize: 16),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () => _increaseItemQuantity(index),
-        ),
-      ],
     );
   }
 
@@ -302,16 +309,16 @@ class _BasketPageState extends State<BasketPageMobile> {
             ),
             onPressed: _sendComment,
             child: Text(
-              "Send",
-              style: GoogleFonts.mali(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              "Send comment",
+              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           if (_sendMessage != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _sendMessage!,
-                style: const TextStyle(color: Colors.black54, fontSize: 16),
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.green),
               ),
             ),
         ],

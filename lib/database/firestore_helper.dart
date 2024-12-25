@@ -5,14 +5,13 @@ import 'dart:convert';
 class FirestoreHelper {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Вставка пользователя с хешированием пароля
   Future<void> insertUser(Map<String, dynamic> user) async {
     if (await _isEmailExists(user['email'])) {
       throw Exception('Email already exists');
     }
 
     String hashedPassword = _hashPassword(user['password']);
-    user['password'] = hashedPassword; // Хешируем пароль
+    user['password'] = hashedPassword;
 
     try {
       await _db.collection('users').add(user);
@@ -23,7 +22,6 @@ class FirestoreHelper {
     }
   }
 
-  // Проверка на существование email
   Future<bool> _isEmailExists(String email) async {
     QuerySnapshot snapshot = await _db.collection('users')
         .where('email', isEqualTo: email)
@@ -31,12 +29,10 @@ class FirestoreHelper {
     return snapshot.docs.isNotEmpty;
   }
 
-  // Хеширование пароля
   String _hashPassword(String password) {
     return sha256.convert(utf8.encode(password)).toString();
   }
 
-  // Вход пользователя
   Future<bool> loginUser(String email, String password) async {
     QuerySnapshot snapshot = await _db.collection('users')
         .where('email', isEqualTo: email)
@@ -45,13 +41,12 @@ class FirestoreHelper {
     if (snapshot.docs.isNotEmpty) {
       String hashedPassword = _hashPassword(password);
       if (snapshot.docs[0]['password'] == hashedPassword) {
-        return true; // Успешный вход
+        return true;
       }
     }
-    return false; // Неверные учетные данные
+    return false;
   }
 
-  // Получение данных пользователя
   Future<Map<String, dynamic>?> getUser(String email) async {
     QuerySnapshot snapshot = await _db.collection('users')
         .where('email', isEqualTo: email)
@@ -60,10 +55,9 @@ class FirestoreHelper {
     if (snapshot.docs.isNotEmpty) {
       return snapshot.docs[0].data() as Map<String, dynamic>;
     }
-    return null; // Пользователь не найден
+    return null;
   }
 
-  // Вставка адреса доставки
   Future<void> insertDeliveryAddress(Map<String, dynamic> address) async {
     try {
       await _db.collection('delivery_addresses').add(address);
@@ -74,7 +68,6 @@ class FirestoreHelper {
     }
   }
 
-  // Вставка отзыва
   Future<void> insertReview(Map<String, dynamic> review) async {
     review['review_date'] = DateTime.now().toIso8601String(); // Устанавливаем текущую дату
     try {
@@ -86,7 +79,6 @@ class FirestoreHelper {
     }
   }
 
-  // Получение отзывов по item_id
   Future<List<Map<String, dynamic>>> getReviewsByItemId(String itemId) async {
     QuerySnapshot snapshot = await _db.collection('reviews')
         .where('item_id', isEqualTo: itemId)
@@ -95,7 +87,6 @@ class FirestoreHelper {
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
 
-  // Загрузка данных о корзине
   Future<List<CartItem>> loadCart(String userId) async {
     QuerySnapshot snapshot = await _db.collection('cart')
         .where('user_id', isEqualTo: userId)
@@ -113,17 +104,14 @@ class FirestoreHelper {
     }).toList();
   }
 
-  // Сохранение данных в корзину
   Future<void> saveCart(List<CartItem> cartItems, String userId) async {
     try {
-      // Очистка старых данных для пользователя
       await _db.collection('cart').where('user_id', isEqualTo: userId).get().then((snapshot) {
         for (var doc in snapshot.docs) {
           doc.reference.delete();
         }
       });
 
-      // Сохранение новых товаров в корзину
       for (var item in cartItems) {
         await _db.collection('cart').add({
           'user_id': userId,
@@ -141,7 +129,6 @@ class FirestoreHelper {
     }
   }
 
-  // Метод для увеличения количества товара в корзине
   Future<void> increaseItemQuantity(String cartItemId) async {
     DocumentSnapshot snapshot = await _db.collection('cart').doc(cartItemId).get();
     if (snapshot.exists) {
@@ -152,7 +139,6 @@ class FirestoreHelper {
     }
   }
 
-  // Метод для уменьшения количества товара в корзине
   Future<void> decreaseItemQuantity(String cartItemId) async {
     DocumentSnapshot snapshot = await _db.collection('cart').doc(cartItemId).get();
     if (snapshot.exists) {
@@ -170,14 +156,14 @@ class FirestoreHelper {
 }
 
 class CartItem {
-  final String itemId; // Добавлено поле itemId
+  final String itemId;
   final String title;
   final String imagePath;
   final double price;
   int quantity;
 
   CartItem({
-    required this.itemId, // Добавлено в конструктор
+    required this.itemId,
     required this.title,
     required this.imagePath,
     required this.price,
@@ -186,7 +172,7 @@ class CartItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'item_id': itemId, // Добавлено в метод toJson
+      'item_id': itemId,
       'title': title,
       'imagePath': imagePath,
       'price': price,

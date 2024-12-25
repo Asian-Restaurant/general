@@ -4,7 +4,7 @@ import '../api/api_service.dart';
 import '../database/сart.dart';
 
 class DishPageWeb extends StatefulWidget {
-  final String dishName; // Название блюда
+  final String dishName;
   final Cart cart;
 
   const DishPageWeb({
@@ -24,8 +24,8 @@ class _DishPageWebState extends State<DishPageWeb> {
   double? weight;
   double? price;
 
-  bool isLoading = true; // Флаг загрузки
-  bool hasError = false; // Флаг ошибки
+  bool isLoading = true;
+  bool hasError = false;
 
   final ApiService _apiService = ApiService("http://127.0.0.1:5000");
 
@@ -94,14 +94,14 @@ class _DishPageWebState extends State<DishPageWeb> {
           style: GoogleFonts.mali(color: Colors.black),
         ),
         backgroundColor: Colors.pink[100],
-        automaticallyImplyLeading: false, // Removes the back arrow
+        automaticallyImplyLeading: false,
       ),
-      body: Center( // Center the entire content
-        child: SingleChildScrollView( // Enable scrolling if content overflows
+      body: Center(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(32.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-            crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 decoration: BoxDecoration(

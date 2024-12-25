@@ -26,6 +26,7 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text(
           'WELCOME TO YOUR LITTLE DREAMWORLD',
@@ -133,19 +134,16 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
                   String password = _passwordController.text;
                   String repeatPassword = _repeatPasswordController.text;
 
-                  // Проверка на пустые поля
                   if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
                     _showErrorDialog('Please fill in all fields.');
                     return;
                   }
 
-                  // Проверка на совпадение паролей
                   if (password != repeatPassword) {
                     _showErrorDialog('Passwords do not match.');
                     return;
                   }
 
-                  // Вставка пользователя в базу данных через API
                   try {
                     await _apiService.registerUser({
                       'name': name,
@@ -154,7 +152,6 @@ class _RegisterPageWebState extends State<RegisterPageWeb> {
                       'phone': phone,
                     });
 
-                    // Переход на главную страницу
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => MainPageWeb()),

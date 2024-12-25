@@ -24,6 +24,7 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text(
           'ASIAN PARADISE',
@@ -32,7 +33,7 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
         centerTitle: true,
       ),
       body: Center(
-        child: SingleChildScrollView(  // Обеспечиваем прокрутку на мобильных устройствах
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +136,7 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainPageMobile()), // Исправьте путь при необходимости
+          MaterialPageRoute(builder: (context) => MainPageMobile()),
         );
       } else {
         throw Exception('Invalid credentials.');

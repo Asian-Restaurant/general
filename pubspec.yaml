@@ -47,5 +47,7 @@ flutter:
     - assets/kimbap.jpg
     - assets/ramen.jpg
     - assets/tteokbokki.jpg
+    - assets/logo.png
+    - assets/original.png
 
 

@@ -1,6 +1,6 @@
 String fixImageUrl(String? url) {
   if (url == null || url.isEmpty) {
-    return ''; // Если URL пустой или null, возвращаем пустую строку
+    return '';
   }
   if (url.startsWith('https:/') && !url.startsWith('https://')) {
     url = url.replaceFirst('https:/', 'https://');

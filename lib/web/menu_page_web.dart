@@ -43,7 +43,6 @@ class MenuPageWeb extends StatelessWidget {
             }
 
             final menuItems = snapshot.data!;
-            // Группируем блюда по категориям
             final Map<String, List<Map<String, dynamic>>> groupedDishes = {};
 
             for (var item in menuItems) {
@@ -92,7 +91,6 @@ class MenuPageWeb extends StatelessWidget {
     );
   }
 
-  // Метод для создания сетки с изображениями
   Widget _buildFoodGrid(Map<String, List<Map<String, dynamic>>> groupedDishes, BuildContext context, Cart cart) {
     return ListView.builder(
       itemCount: groupedDishes.keys.length,
@@ -113,9 +111,9 @@ class MenuPageWeb extends StatelessWidget {
             GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                childAspectRatio: 0.6, // Уменьшите это значение для увеличения высоты
+                childAspectRatio: 0.6,
                 crossAxisSpacing: 16.0,
-                mainAxisSpacing: 8.0, // Уменьшите отступ между карточками
+                mainAxisSpacing: 8.0,
               ),
               itemCount: dishes.length,
               shrinkWrap: true,
@@ -125,9 +123,9 @@ class MenuPageWeb extends StatelessWidget {
                 return _buildFoodCard(
                   dish['image_url'] ?? '',
                   dish['dish_name'] ?? 'Unknown Title',
-                  '', // Описание можно добавить позже
-                  0.0, // Вес можно добавить позже
-                  0.0, // Цена можно добавить позже
+                  '',
+                  0.0,
+                  0.0,
                   context,
                   cart,
                 );
@@ -139,7 +137,6 @@ class MenuPageWeb extends StatelessWidget {
     );
   }
 
-// Метод для создания карточки с едой
   Widget _buildFoodCard(String imagePath, String title, String description, double weight, double price, BuildContext context, Cart cart) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -157,20 +154,19 @@ class MenuPageWeb extends StatelessWidget {
               imagePath,
               fit: BoxFit.cover,
               width: 220,
-              height: 200, // Увеличьте высоту изображения
+              height: 200,
             )
                 : Container(
               width: 220,
-              height: 200, // Соответствующая высота для серого контейнера
+              height: 200,
               color: Colors.grey,
               child: const Center(child: Text('No Image')),
             ),
           ),
         ),
-        const SizedBox(height: 8), // Оставьте расстояние между изображением и кнопкой
+        const SizedBox(height: 8),
         TextButton(
           onPressed: () {
-            // Переход на страницу блюда
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -200,7 +196,6 @@ class MenuPageWeb extends StatelessWidget {
     );
   }
 
-  // Метод для создания кнопки навигации
   static Widget _buildNavButton(BuildContext context, String title, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),

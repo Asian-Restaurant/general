@@ -24,6 +24,7 @@ class _LoginPageWebState extends State<LoginPageWeb> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text(
           'ASIAN PARADISE',
@@ -116,7 +117,6 @@ class _LoginPageWebState extends State<LoginPageWeb> {
       return;
     }
 
-    // Проверка формата email
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       _showErrorDialog('Invalid email format.');
       return;

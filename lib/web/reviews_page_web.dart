@@ -1,8 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../AuthService.dart';
-import '../api/api_service.dart';
+import 'package:http/http.dart' as http;
 
 class ReviewsPageWeb extends StatefulWidget {
   const ReviewsPageWeb({Key? key}) : super(key: key);
@@ -13,9 +12,9 @@ class ReviewsPageWeb extends StatefulWidget {
 
 class _ReviewsPageWebState extends State<ReviewsPageWeb> {
   final TextEditingController _reviewController = TextEditingController();
-  final ApiService _apiService = ApiService('http://127.0.0.1:5000');
-  List<Map<String, dynamic>> _reviews = [];
+  final TextEditingController _emailController = TextEditingController();
   bool _isLoading = false;
+  List<Map<String, dynamic>> _reviews = [];
 
   @override
   void initState() {
@@ -28,18 +27,22 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
       _isLoading = true;
     });
     try {
-      List<dynamic> reviews = await _apiService.getAllReviews();
-      setState(() {
-        _reviews = reviews.map((review) => {
-          "user": review['name'] ?? "Anonymous",
-          "review": review['comment'] ?? "No comment",
-        }).toList();
-      });
+      final response = await http.get(Uri.parse('http://127.0.0.1:5000/reviews'));
+      if (response.statusCode == 200) {
+        final List<dynamic> reviews = json.decode(response.body);
+        setState(() {
+          _reviews = reviews.map((review) {
+            return {
+              'name': review['name'] ?? 'Anonymous',
+              'comment': review['comment'] ?? 'No comment',
+            };
+          }).toList();
+        });
+      } else {
+        _showDialog('Error', 'Failed to load reviews: ${response.body}');
+      }
     } catch (e) {
-      setState(() {
-        _reviews = [];
-      });
-      _showDialog('Error', 'Error loading reviews: ${e.toString()}');
+      _showDialog('Error', 'Failed to load reviews: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -48,15 +51,11 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
   }
 
   Future<void> _addReview() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
+    final email = _emailController.text.trim();
+    final comment = _reviewController.text.trim();
 
-    if (!authService.isAuthenticated) {
-      _showAuthDialog();
-      return;
-    }
-
-    if (_reviewController.text.isEmpty) {
-      _showDialog('Error', 'Review text cannot be empty.');
+    if (email.isEmpty || comment.isEmpty) {
+      _showDialog('Error', 'Email and review text are required.');
       return;
     }
 
@@ -65,16 +64,26 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
     });
 
     try {
-      await _apiService.addReview({
-        'email': authService.currentUserEmail,
-        'name': authService.currentUserName,
-        'comment': _reviewController.text,
-      });
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:5000/reviews'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'email': email,
+          'comment': comment,
+        }),
+      );
 
-      _reviewController.clear();
-      await _loadReviews(); // Reload reviews after adding the new one
+      if (response.statusCode == 201) {
+        _reviewController.clear();
+        _emailController.clear();
+        await _loadReviews();
+      } else {
+        _showDialog('Error', 'Failed to add review: ${response.body}');
+      }
     } catch (e) {
-      _showDialog('Error', 'Failed to add review: ${e.toString()}');
+      _showDialog('Error', 'Failed to add review: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -82,17 +91,7 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
     }
   }
 
-  void _showAuthDialog() {
-    _showDialog(
-      'Authentication Required',
-      'You need to be logged in to leave a review.',
-      onConfirm: () {
-        Navigator.pushNamed(context, '/login');
-      },
-    );
-  }
-
-  void _showDialog(String title, String message, {VoidCallback? onConfirm}) {
+  void _showDialog(String title, String message) {
     showDialog(
       context: context,
       builder: (context) {
@@ -106,14 +105,6 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
               },
               child: const Text('OK'),
             ),
-            if (onConfirm != null)
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onConfirm();
-                },
-                child: const Text('Confirm'),
-              ),
           ],
         );
       },
@@ -122,21 +113,9 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.pink[100],
-          title: Text('Reviews', style: GoogleFonts.mali(fontSize: 20)),
-          centerTitle: true,
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text('Reviews', style: GoogleFonts.mali(fontSize: 20)),
         centerTitle: true,
@@ -146,17 +125,18 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Check if user is logged in, display the username
-            if (authService.isAuthenticated)
-              Text(
-                'Logged in as: ${authService.currentUserName}',
-                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-            else
-              Text(
-                'You are not logged in. Please log in to leave a review.',
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                hintText: 'Enter your email',
+                labelText: 'Email',
+                filled: true,
+                fillColor: Colors.pink[50],
               ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _reviewController,
@@ -164,26 +144,33 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.0),
-                  borderSide: BorderSide.none,
                 ),
-                hintText: 'Tell us everything you want...',
+                hintText: 'Enter your review',
+                labelText: 'Review',
                 filled: true,
                 fillColor: Colors.pink[50],
-                contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
               ),
-              onSubmitted: (value) {
-                _addReview();
-              },
             ),
-            const SizedBox(height: 8),
-            Expanded(child: _buildReviewList()),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _addReview,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink[300], // Цвет фона
+                foregroundColor: Colors.black,    // Цвет текста
+              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Submit Review'),
+            ),
+
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildReviewList(),
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addReview,
-        backgroundColor: Colors.pink[300],
-        child: const Icon(Icons.send),
       ),
     );
   }
@@ -194,7 +181,6 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
         child: Text(
           'No reviews yet. Be the first to leave one!',
           style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),
-          textAlign: TextAlign.center,
         ),
       );
     }
@@ -203,20 +189,11 @@ class _ReviewsPageWebState extends State<ReviewsPageWeb> {
       itemCount: _reviews.length,
       itemBuilder: (context, index) {
         return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _reviews[index]["user"] ?? "Unknown User",
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(_reviews[index]["review"] ?? "No review provided"),
-              ],
-            ),
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          child: ListTile(
+            title: Text(_reviews[index]['name'] ?? 'Anonymous',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            subtitle: Text(_reviews[index]['comment'] ?? 'No comment'),
           ),
         );
       },

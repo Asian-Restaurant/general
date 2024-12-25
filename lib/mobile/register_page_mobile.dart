@@ -26,6 +26,7 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text(
           'WELCOME TO YOUR LITTLE DREAMWORLD',
@@ -34,8 +35,8 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
         centerTitle: true,
       ),
       body: Center(
-        child: SingleChildScrollView(  // Обеспечиваем прокрутку на мобильных устройствах
-          padding: const EdgeInsets.all(16.0),  // Уменьшены отступы для мобильных устройств
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -100,7 +101,7 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Поле для повторного ввода пароля
+
               TextField(
                 controller: _repeatPasswordController,
                 obscureText: _obscureRepeatPassword,
@@ -133,19 +134,16 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
                   String password = _passwordController.text;
                   String repeatPassword = _repeatPasswordController.text;
 
-                  // Проверка на пустые поля
                   if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
                     _showErrorDialog('Please fill in all fields.');
                     return;
                   }
 
-                  // Проверка на совпадение паролей
                   if (password != repeatPassword) {
                     _showErrorDialog('Passwords do not match.');
                     return;
                   }
 
-                  // Вставка пользователя в базу данных через API
                   try {
                     await _apiService.registerUser({
                       'name': name,
@@ -154,10 +152,9 @@ class _RegisterPageMobileState extends State<RegisterPageMobile> {
                       'phone': phone,
                     });
 
-                    // Переход на главную страницу
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => MainPageMobile()), // Исправьте путь при необходимости
+                      MaterialPageRoute(builder: (context) => MainPageMobile()),
                     );
                   } catch (e) {
                     _showErrorDialog('Registration failed: ${e.toString()}');

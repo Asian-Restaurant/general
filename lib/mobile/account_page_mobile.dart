@@ -33,7 +33,6 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
         MaterialPageRoute(builder: (context) => const LoginPageMobile()),
       );
     } else {
-      // Передаем email из локального хранилища в _loadUserData
       await _loadUserData(email);
     }
   }
@@ -43,7 +42,7 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
       _isLoading = true;
     });
     try {
-      userData = await _apiService.getUser(email); // Используем переданный email
+      userData = await _apiService.getUser(email);
     } catch (e) {
       print('Error loading user data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,6 +82,7 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text(
           "Account",
@@ -96,13 +96,13 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
           ),
         ],
       ),
-      body: SingleChildScrollView(  // Добавляем возможность прокрутки для маленьких экранов
+      body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,  // Выравнивание по центру
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   "Welcome, ${userData?['name'] ?? 'User'}",
@@ -121,7 +121,7 @@ class _AccountPageMobileState extends State<AccountPageMobile> {
                   style: GoogleFonts.mali(fontSize: 20),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40), // Добавим отступ перед кнопкой
+                const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: _logout,
                   style: ElevatedButton.styleFrom(

@@ -41,3 +41,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Sensitive information
+lib/asian-paradise-de6ab-firebase-adminsdk-wxhiw-ef0a3b7fee.json
+lib/credentials.json

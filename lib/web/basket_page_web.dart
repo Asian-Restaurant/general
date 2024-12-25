@@ -80,26 +80,23 @@ class _BasketPageState extends State<BasketPageWeb> {
     });
   }
 
-  // Увеличение количества товара
   void _increaseItemQuantity(int index) {
     setState(() {
       widget.cartData.items[index].quantity++;
     });
-    _saveCart(); // Сохранение изменений в API
+    _saveCart();
   }
 
-// Уменьшение количества товара
   void _decreaseItemQuantity(int index) {
     setState(() {
       if (widget.cartData.items[index].quantity > 1) {
         widget.cartData.items[index].quantity--;
       } else {
-        widget.cartData.items.removeAt(index); // Удаление товара из корзины
+        widget.cartData.items.removeAt(index);
       }
     });
-    _saveCart(); // Сохранение изменений в API
+    _saveCart();
   }
-
 
   void _navigateTo(String page) {
     _saveCart();
@@ -126,6 +123,7 @@ class _BasketPageState extends State<BasketPageWeb> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'ASIAN PARADISE',
           style: GoogleFonts.mali(color: Colors.black, fontSize: 24),
@@ -224,18 +222,18 @@ class _BasketPageState extends State<BasketPageWeb> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.remove),
-                              onPressed: () => _decreaseItemQuantity(index), // Привязка логики к кнопке
+                              onPressed: () => _decreaseItemQuantity(index),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0),
                               child: Text(
-                                "${item.quantity}", // Отображение текущего количества
+                                "${item.quantity}",
                                 style: GoogleFonts.mali(fontSize: 16),
                               ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.add),
-                              onPressed: () => _increaseItemQuantity(index), // Привязка логики к кнопке
+                              onPressed: () => _increaseItemQuantity(index),
                             ),
                           ],
                         ),
@@ -312,7 +310,7 @@ class _BasketPageState extends State<BasketPageWeb> {
             onPressed: _sendComment,
             child: Text(
               "Send comment",
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
             ),
           ),
           if (_sendMessage != null)

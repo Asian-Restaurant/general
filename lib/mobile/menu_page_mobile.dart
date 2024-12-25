@@ -12,7 +12,7 @@ import '../database/сart.dart';
 class MenuPageMobile extends StatelessWidget {
   MenuPageMobile({Key? key}) : super(key: key);
 
-  final ApiService _apiService = ApiService('http://192.168.0.101:5000'); // Updated API URL
+  final ApiService _apiService = ApiService('http://192.168.0.101:5000');
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,6 @@ class MenuPageMobile extends StatelessWidget {
             }
 
             final menuItems = snapshot.data!;
-            // Group dishes by category
             final Map<String, List<Map<String, dynamic>>> groupedDishes = {};
 
             for (var item in menuItems) {
@@ -61,7 +60,6 @@ class MenuPageMobile extends StatelessWidget {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  // Horizontal navigation buttons
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -97,7 +95,6 @@ class MenuPageMobile extends StatelessWidget {
     );
   }
 
-  // Build food grid (list of categories and dishes)
   Widget _buildFoodGrid(Map<String, List<Map<String, dynamic>>> groupedDishes, BuildContext context, Cart cart) {
     return ListView.builder(
       shrinkWrap: true,
@@ -119,8 +116,8 @@ class MenuPageMobile extends StatelessWidget {
             ),
             GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Adjusted for mobile
-                childAspectRatio: 0.7, // Adjusted aspect ratio
+                crossAxisCount: 2,
+                childAspectRatio: 0.7,
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
               ),
@@ -132,9 +129,9 @@ class MenuPageMobile extends StatelessWidget {
                 return _buildFoodCard(
                   dish['image_url'] ?? '',
                   dish['dish_name'] ?? 'Unknown Title',
-                  '', // Description placeholder
-                  0.0, // Weight placeholder
-                  0.0, // Price placeholder
+                  '',
+                  0.0,
+                  0.0,
                   context,
                   cart,
                 );
@@ -146,7 +143,6 @@ class MenuPageMobile extends StatelessWidget {
     );
   }
 
-  // Create food card widget
   Widget _buildFoodCard(String imagePath, String title, String description, double weight, double price, BuildContext context, Cart cart) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -214,7 +210,6 @@ class MenuPageMobile extends StatelessWidget {
     );
   }
 
-  // Create navigation button widget
   static Widget _buildNavButton(BuildContext context, String title, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),

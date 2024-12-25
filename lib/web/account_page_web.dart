@@ -33,7 +33,6 @@ class _AccountPageWebState extends State<AccountPageWeb> {
         MaterialPageRoute(builder: (context) => const LoginPageWeb()),
       );
     } else {
-      // Передаем email из локального хранилища в _loadUserData
       await _loadUserData(email);
     }
   }
@@ -43,7 +42,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
       _isLoading = true;
     });
     try {
-      userData = await _apiService.getUser(email); // Используем переданный email
+      userData = await _apiService.getUser(email);
     } catch (e) {
       print('Error loading user data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,6 +82,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.pink[100],
         title: Text(
           "Account",
@@ -119,7 +119,7 @@ class _AccountPageWebState extends State<AccountPageWeb> {
                 style: GoogleFonts.mali(fontSize: 24),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40), // Добавим отступ перед кнопкой
+              const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: _logout,
                 style: ElevatedButton.styleFrom(

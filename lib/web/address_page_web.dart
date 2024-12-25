@@ -22,7 +22,7 @@ class _AddressPageWebState extends State<AddressPageWeb> {
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
 
-  final String baseUrl = 'http://127.0.0.1:5000'; // API базовый URL
+  final String baseUrl = 'http://127.0.0.1:5000';
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,6 @@ class _AddressPageWebState extends State<AddressPageWeb> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Кнопки навигации
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -63,7 +62,6 @@ class _AddressPageWebState extends State<AddressPageWeb> {
               ),
               const SizedBox(height: 20),
 
-              // Форма адреса
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(

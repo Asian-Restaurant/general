@@ -25,22 +25,22 @@ class _DishPageMobileState extends State<DishPageMobile> {
   double? weight;
   double? price;
 
-  bool isLoading = true; // Флаг загрузки
-  bool hasError = false; // Флаг ошибки
+  bool isLoading = true;
+  bool hasError = false;
 
   final ApiService _apiService = ApiService("http://192.168.0.101:5000");
 
   @override
   void initState() {
     super.initState();
-    print("Fetching data for dish: ${widget.dishName}"); // Логирование начала запроса
+    print("Fetching data for dish: ${widget.dishName}");
     _fetchDishData(widget.dishName);
   }
 
   Future<void> _fetchDishData(String dishName) async {
     try {
       final data = await _apiService.getDish(dishName);
-      print("Data received: $data"); // Логирование полученных данных
+      print("Data received: $data");
 
       if (data == null || data.isEmpty) {
         throw Exception("Dish data is empty or null.");
@@ -99,7 +99,7 @@ class _DishPageMobileState extends State<DishPageMobile> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0), // Уменьшите отступы для мобильного
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -119,15 +119,15 @@ class _DishPageMobileState extends State<DishPageMobile> {
                       color: Colors.red,
                       size: 50,
                     ),
-                    width: double.infinity, // Используйте ширину экрана
-                    height: 200, // Задайте фиксированную высоту
+                    width: double.infinity,
+                    height: 200,
                   ),
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 description ?? "No description available.",
-                style: GoogleFonts.poppins(fontSize: 16), // Уменьшите размер шрифта
+                style: GoogleFonts.poppins(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -153,7 +153,7 @@ class _DishPageMobileState extends State<DishPageMobile> {
                 ),
                 child: Text(
                   "Add to Cart",
-                  style: GoogleFonts.poppins(fontSize: 16), // Уменьшите размер шрифта
+                  style: GoogleFonts.poppins(fontSize: 16),
                 ),
               ),
             ],

@@ -18,13 +18,6 @@ class MainPageMobile extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.pink[50],
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            // Действие при нажатии на кнопку "Назад"
-            Navigator.pop(context);
-          },
-        ),
         centerTitle: true,
         title: Text(
           'ASIAN PARADISE',
@@ -34,14 +27,10 @@ class MainPageMobile extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person, color: Colors.black),
             onPressed: () {
-              // Предположим, что у вас есть переменная userEmail, содержащая email пользователя
-              String userEmail = 't.shybko04@gmail.com'; // Замените на реальный email пользователя
-
-              // Переход на страницу аккаунта
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AccountPageMobile(email: userEmail), // Передаем email
+                  builder: (context) => const AccountPageMobile(email: ''),
                 ),
               );
             },
@@ -51,7 +40,7 @@ class MainPageMobile extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPageMobile()),
+                MaterialPageRoute(builder: (context) => const LoginPageMobile()),
               );
             },
           ),
@@ -83,15 +72,14 @@ class MainPageMobile extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => BasketPageMobile(cartData: cart)));
                   }),
                   _buildNavButton(context, "Reviews", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewsPageMobile()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsPageMobile()));
                   }),
                   _buildNavButton(context, "Delivery", () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddressPageMobile()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AddressPageMobile()));
                   }),
                 ],
               ),
               const SizedBox(height: 20),
-              // Категории еды
               Column(
                 children: [
                   _buildFoodCard("assets/sushi.jpg", "Try classic of Japan"),

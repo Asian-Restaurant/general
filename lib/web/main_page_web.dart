@@ -88,14 +88,14 @@ class MainPageWeb extends StatelessWidget {
               // Сетка категорий еды
               GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Две карточки в ряд
-                  crossAxisSpacing: 16, // Расстояние между карточками по горизонтали
-                  mainAxisSpacing: 16, // Расстояние между карточками по вертикали
-                  childAspectRatio: 1.5, // Соотношение сторон карточки
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.5,
                 ),
                 itemCount: foodItems.length,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(), // Запрет прокрутки внутри GridView
+                physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   return _buildFoodCard(
                     foodItems[index]["imagePath"]!,
@@ -144,7 +144,7 @@ class MainPageWeb extends StatelessWidget {
             child: Image.asset(
               imagePath,
               fit: BoxFit.cover,
-              width: 300, // Увеличенная ширина для веба
+              width: 300,
               height: 200,
             ),
           ),

@@ -10,7 +10,6 @@ class AuthService with ChangeNotifier {
   String? get currentUserEmail => _currentUserEmail;
   String? get currentUserName => _currentUserName;
 
-  // Метод инициализации состояния аутентификации
   Future<void> initialize() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _isAuthenticated = prefs.getBool('isAuthenticated') ?? false;
@@ -19,7 +18,6 @@ class AuthService with ChangeNotifier {
     notifyListeners();
   }
 
-  // Метод для логина
   Future<void> login(String email, String name) async {
     _isAuthenticated = true;
     _currentUserEmail = email;
@@ -33,7 +31,6 @@ class AuthService with ChangeNotifier {
     notifyListeners();
   }
 
-  // Метод для логаута
   Future<void> logout() async {
     _isAuthenticated = false;
     _currentUserEmail = null;

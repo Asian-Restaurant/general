@@ -2,7 +2,7 @@ class CartItem {
   final String title;
   final String imagePath;
   final double price;
-  int quantity; // This should be mutable
+  int quantity;
   String? comment;
 
   CartItem({
@@ -13,14 +13,13 @@ class CartItem {
     this.comment,
   });
 
-  // Method to convert object to JSON
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'imagePath': imagePath,
       'price': price,
       'quantity': quantity,
-      'comment': comment ?? '', // Provide a default empty string for comment
+      'comment': comment ?? '',
     };
   }
 
@@ -29,9 +28,9 @@ class CartItem {
     return CartItem(
       title: json['title'] as String,
       imagePath: json['imagePath'] as String,
-      price: (json['price'] as num).toDouble(), // Ensure price is parsed as double
+      price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] ?? 1,
-      comment: json['comment'] as String?, // Allow for nullable comment
+      comment: json['comment'] as String?,
     );
   }
 }
@@ -42,10 +41,8 @@ class Cart {
   void addItem(CartItem item) {
     final existingItemIndex = items.indexWhere((cartItem) => cartItem.title == item.title);
     if (existingItemIndex != -1) {
-      // Увеличиваем количество, если товар уже есть
       items[existingItemIndex].quantity++;
     } else {
-      // Добавляем новый товар
       items.add(item);
     }
   }
@@ -58,12 +55,10 @@ class Cart {
     items.clear();
   }
 
-  // Метод для получения общей суммы
   double get totalAmount {
     return items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
   }
 
-  // Метод для получения общего количества товаров
   int get totalItems {
     return items.fold(0, (sum, item) => sum + item.quantity);
   }
